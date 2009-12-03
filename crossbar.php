@@ -33,9 +33,11 @@ class crossbar
 	public function go()
 	{
 		$this->set_controller_object();
-		if(method_exists($this->controller_object, '_init'))
+
+		// If a _pre function is defined, call it before the action
+		if(method_exists($this->controller_object, '_pre'))
 		{
-			$this->controller_object->_init();
+			$this->controller_object->_pre();
 		}
 
 		// If the action we're not looking for doesn't exist and a re-write action does exist, use the rewrite one
@@ -55,6 +57,13 @@ class crossbar
 			$action = $this->action;
 			$this->controller_object->$action();
 		}
+
+		// If a _post function is defined, call it before the action
+		if(method_exists($this->controller_object, '_post'))
+		{
+			$this->controller_object->_pre();
+		}
+
 		
 		$this->import_controller_values();
 		$this->destroy_controller();

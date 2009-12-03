@@ -50,14 +50,14 @@ class mysql
 		// Execute our query and get the result
 		$result = mysql_query($sql, $connection);
 
+		if(!$result)
+		{
+			self::set_error(mysql_error());
+			return FALSE;
+		}
+
 		switch($result)
 		{
-			// Check for errors
-			case ($result === FALSE):
-				self::set_error(mysql_error());
-				return FALSE;
-				break;
-
 			// Check for successful insert/update/delete
 			case ($result === TRUE):
 				return TRUE;
