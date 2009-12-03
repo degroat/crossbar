@@ -61,7 +61,7 @@ class crossbar
 		// If a _post function is defined, call it before the action
 		if(method_exists($this->controller_object, '_post'))
 		{
-			$this->controller_object->_pre();
+			$this->controller_object->_post();
 		}
 
 		
