@@ -18,7 +18,7 @@ class mysql
 
 	}
 
-	public static function query($alias, $sql, $cache = FALSE)
+	public static function query($alias, $sql, $cache = FALSE, $update_cache = FALSE)
 	{
 		// Verify that the alias has been set up properly
 		if(!self::validate_alias($alias))
@@ -27,7 +27,7 @@ class mysql
 		}
 
 		
-		if($cache)
+		if($cache && !$update_cache)
 		{
 			$cache_key = "mysql_cache_" . $alias . "_" . md5($sql);
 
@@ -149,7 +149,18 @@ class mysql
 
 	public static function quote($string)
 	{
-		return "'" . self::escape($string) . "'";
+		if(is_array($string))
+		{
+			foreach($string as $key => $val)
+			{
+				$string[$key] = "'" . self::escape($val) . "'";
+			}
+			return $string;
+		}
+		else
+		{
+			return "'" . self::escape($string) . "'";
+		}
 	}
 
 	// ==========================================================

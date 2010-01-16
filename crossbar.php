@@ -165,15 +165,15 @@ class crossbar
 	
 				if(!isset($_GET[$param]))
 				{
-					$_GET[$param] = $value;
+					$_GET[$param] = urldecode($value);
 				}
 				elseif(is_array($_GET[$param]))
 				{
-					$_GET[$param][] = $value;
+					$_GET[$param][] = urldecode($value);
 				}
 				else
 				{
-					$_GET[$param] = array($_GET[$param], $value);
+					$_GET[$param] = array($_GET[$param], urldecode($value));
 				}
 			}
 		}
@@ -182,7 +182,7 @@ class crossbar
 	private function build_rewrite_params()
 	{
 		$split_at_question = split("\?", trim($_SERVER['REQUEST_URI']));
-		$_GET['_params'] = split("/", trim($split_at_question[0]));
+		$_GET['_params'] = array_map('urldecode', split("/", trim($split_at_question[0])));
 		array_shift($_GET['_params']);
 		array_shift($_GET['_params']);
 	}
