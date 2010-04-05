@@ -54,7 +54,7 @@ class base_controller
 		$this->layout_disabled = TRUE;
 	}
 
-	protected function call_action($action)
+	protected function set_action($action)
 	{
 		unset($_GET['_params']);
 		$this->set_view($action);
