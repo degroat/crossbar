@@ -248,7 +248,8 @@ class crossbar
 		{
 			return FALSE;
 		}
-		require $this->controllers_path . $controller_filename;
+		require_once 'base_controller.php'; // have to manually include this because the underscore breaks the autoload
+		require_once $this->controllers_path . $controller_filename;
 		$this->controller_object = new $controller_class_name;
 		$this->controller_object->controller = $this->controller;
 		$this->controller_object->action = $this->action;
