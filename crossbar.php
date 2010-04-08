@@ -32,42 +32,72 @@ class crossbar
 
 	public function go()
 	{
-		$this->set_controller_object();
+		$this->auth_error = FALSE;
 
-		// If a _pre function is defined, call it before the action
-		if(method_exists($this->controller_object, '_pre'))
-		{
-			$this->controller_object->_pre();
-		}
+		// If the controller doesn't exist, send them to index/_error
+		if(!$this->set_controller_object())
+		{	
+			$this->controller = "index";
+			$this->action = "_error";
+			$this->set_controller_object();
+			$this->view = $this->controller . "/" . $this->action;
+		}	
 
 		// If the action we're not looking for doesn't exist and a re-write action does exist, use the rewrite one
 		if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite'))
 		{
 			$this->build_rewrite_params();
-			$this->controller_object->_rewrite();
-		}
-		else
-		{
-			// Validate that this is an allowed action
-			if($this->action != preg_replace("/[^a-zA-Z0-9\s]/", "", $this->action))
-			{
-				$this->error("Invalid Action '" . $this->action . "' in controller '" . $this->controller . "'");
-			}
-			$this->build_params();
-			$action = $this->action;
-			$this->controller_object->$action();
+			$this->action =$this->controller_object->_rewrite();
+			$this->controller_object->action = $this->action;
+			$this->view = $this->controller . "/" . $this->action;
 		}
 
+		// Verify that the action exists on this controller
+		if(!method_exists($this->controller_object, $this->action))
+		{
+			$this->action = '_error';
+			$this->controller_object->action = $this->action;
+			$this->view = $this->controller . "/" . $this->action;
+		}
+
+		// Verify that the user has permissions to view this controller/action... unless it's a _error action
+		if(!auth::access($this->controller, $this->action) && $this->action != '_error')
+		{
+			// User isn't allowed to access this controller/action, so we send them to the _error action on the same controller
+			$this->auth_error = TRUE;
+			$this->action = '_auth';
+			$this->controller_object->action = $this->action;
+			$this->view = $this->controller . "/" . $this->action;
+		}
+
+		
+		// If a _pre function is defined, call it before the action
+		if(method_exists($this->controller_object, '_pre') && !$this->auth_error)
+		{
+			$this->controller_object->_pre();
+		}
+
+		// Validate that this is an allowed action
+		if($this->action != preg_replace("/[^a-zA-Z0-9\s]/", "", $this->action) && $this->action != '_error' && $this->action != '_auth')
+		{
+			$this->error("Invalid Action '" . $this->action . "' in controller '" . $this->controller . "'");
+		}
+		$this->build_params();
+		$action = $this->action;
+		$this->controller_object->$action();
+
+
 		// If a _post function is defined, call it before the action
-		if(method_exists($this->controller_object, '_post'))
+		if(method_exists($this->controller_object, '_post') && !$this->auth_error)
 		{
 			$this->controller_object->_post();
 		}
-
 		
 		$this->import_controller_values();
 		$this->destroy_controller();
 		$this->print_layout();
+
+
 	}
 
 	public function add_to_include_path($path)
@@ -213,10 +243,17 @@ class crossbar
 	{
 		$controller_filename = $this->controller . ".php";
 		$controller_class_name = $this->controller . "_controller";
+
+		if(!file_exists($this->controllers_path . $controller_filename))
+		{
+			return FALSE;
+		}
 		require $this->controllers_path . $controller_filename;
 		$this->controller_object = new $controller_class_name;
 		$this->controller_object->controller = $this->controller;
 		$this->controller_object->action = $this->action;
+
+		return TRUE;
 	}
 
 	/*
@@ -255,6 +292,10 @@ class crossbar
 		else
 		{
 			$layout_filename = $this->layouts_path . $this->layout . ".phtml";
+			if(!file_exists($layout_filename))
+			{
+				$this->error('Missing layout ' . $this->layout . '.phtml');
+			}
 			require_once $layout_filename;
 		}
 	}
@@ -262,12 +303,20 @@ class crossbar
 	private function print_view()
 	{
 		$view_filename = $this->views_path . $this->view . '.phtml';
+		if(!file_exists($view_filename))
+		{
+			$this->error('Missing view ' . $this->view . '.phtml');
+		}
 		require_once $view_filename;
 	}
 
 	private function print_module($module)
 	{
 		$module_filename = $this->modules_path . $module . '.phtml';
+		if(!file_exists($module_filename))
+		{
+			$this->error('Missing module ' . $module . '.phtml');
+		}
 		require_once $module_filename;
 	}
 
@@ -299,6 +348,7 @@ class crossbar
 
 	private function error($error)
 	{
+		$error = "Crossbar: " . $error;
 		error_log($error);
 		trigger_error($error, E_USER_ERROR);
 		exit;

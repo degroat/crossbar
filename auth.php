@@ -6,6 +6,7 @@ class auth
 	private static $user_groups = array();
 	private static $cookie_name = 'crossbar';
 	private static $errors = array();
+	private static $enabled = FALSE;
 
 	public static function load_user_groups()
 	{
@@ -26,6 +27,11 @@ class auth
 
 	public static function access($controller, $action)
 	{
+		if(!self::$enabled)
+		{
+			return TRUE;
+		}
+
 		// Load the user groups
 		self::load_user_groups();
 
@@ -48,7 +54,7 @@ class auth
 
 	public static function check($group)
 	{
-		// Everyone gets star
+		// Everyone gets star!
 		if($group == '*')
 		{
 			return TRUE;
@@ -95,6 +101,12 @@ class auth
 			return FALSE;
 		}		
 
+		// Force groups to an array....
+		if(!is_array($groups))
+		{
+			$groups = array($groups);
+		}
+
 		// Build the cookie value
 		$cookie['user'] = $user;
 		$cookie['groups'] = $groups;
@@ -102,7 +114,15 @@ class auth
 
 		// Set the cookie... even for this page load to be safe
 		$_COOKIE[self::$cookie_name] = $cookie_value;
-		setcookie(self::$cookie_name, $cookie_value, $time);
+
+		if($time > 0)
+		{
+			setcookie(self::$cookie_name, $cookie_value, time() + $time);
+		}
+		else
+		{
+			setcookie(self::$cookie_name, $cookie_value);
+		}
 
 		// Reset the user groups since they've changed
 		self::$user_groups = array();
@@ -115,6 +135,7 @@ class auth
 			self::error('Invalid group configuration');
 			return FALSE;
 		}
+		self::$enabled = TRUE;
 		self::$groups[$group] = $config;
 		return TRUE;
 	}
