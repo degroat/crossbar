@@ -54,13 +54,6 @@ class base_controller
 		$this->layout_disabled = TRUE;
 	}
 
-	protected function call_action($action)
-	{
-		unset($_GET['_params']);
-		$this->set_view($action);
-		$this->$action();
-	}
-
 	public function _error()
 	{
 		$error = "$this->controller" . "_controller is missing _error function to catch crossbar errors";

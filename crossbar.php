@@ -48,6 +48,11 @@ class crossbar
 		{
 			$this->build_rewrite_params();
 			$this->action =$this->controller_object->_rewrite();
+			if(empty($action))
+			{
+				$this->error("Rewrite function must return value to set as action");
+			}
+			unset($_GET['_params']);
 			$this->controller_object->action = $this->action;
 			$this->view = $this->controller . "/" . $this->action;
 		}
