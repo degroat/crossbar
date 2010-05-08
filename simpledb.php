@@ -86,11 +86,13 @@ class simpledb
 		// work, nothing does
                 sort($query, SORT_STRING);
                 $query_string = implode('&', $query);
-		$strtosign = "POST\nsdb.amazonaws.com\n/\n".$query_string;
+		$strtosign = "$verb\nsdb.amazonaws.com\n/\n".$query_string;
 		$query_string .= '&Signature=' . rawurlencode(base64_encode(hash_hmac('sha256', $strtosign, self::$secretkey, true)));
 
 
 		$url = "https://sdb.amazonaws.com/?" . $query_string;
+
+		//print str_replace("&", "<br>&", "$url<br><br>");
 		$curl = curl_init();
                 curl_setopt($curl, CURLOPT_USERAGENT, 'SimpleDB/php');
                 curl_setopt($curl, CURLOPT_URL, $url);
@@ -100,11 +102,11 @@ class simpledb
 		// I don't think these are necessary but were included in the
 		// example provided by AWS.  Will remove if they prove to be 
 		// after class if finished
-               	#curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 1);
-                #curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 1);
-                #curl_setopt($curl, CURLOPT_HEADER, false);
+               	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 1);
+                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 1);
+                curl_setopt($curl, CURLOPT_HEADER, false);
                 #curl_setopt($curl, CURLOPT_WRITEFUNCTION, 'wtf'); // array(self,'callback'));
-                #curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 
 
                 // Request types
@@ -220,23 +222,114 @@ class simpledb
 		return self::$response['success'];	
 	}
 
-	public static function delete()
-	{
 
+	public static function query($sql, $master = FALSE)
+	{
+		if($sql == '')
+		{
+			self::error('Missing required parameter sql');
+			return FALSE;
+		}
+		
+		// Start building the params array to send to AWS
+		$params['Action'] = 'Select';
+		if($master)
+		{
+			$params['ConsistentRead'] = 'true';
+		}
+		$params['SelectExpression'] = $sql;
+
+		// This makes the call to AWS and returns either FALSE or TRUE
+		if(!self::call('GET', $params))
+		{
+			return FALSE;
+		}
+	
+		// Loop through the SimpleXML junk and convert it to an item keyed array to return
+		$data = array();
+		foreach(self::$response['xml']->SelectResult->Item as $item)
+		{
+			$name = (string) $item->Name;
+
+			$data[$name] = array();
+
+			foreach($item->Attribute as $attribute)
+			{
+				$var = (string) $attribute->Name;
+				$val = (string) $attribute->Value;
+
+				if(isset($data[$name][$var]))
+				{
+					if(is_array($data[$name][$var]))
+					{
+						$data[$name][$var][] = $val;
+					}
+					else
+					{
+						$tmp = $data[$name][$var];
+						$data[$name][$var] = array($tmp, $val);
+					}
+				}
+				else
+				{
+					$data[$name][$var] = $val;
+				}
+			}
+		}
+
+		// If zero rows were returned, just return false
+		if(count($data) == 0)
+		{
+			return FALSE;
+		}
+		
+		self::$response['data'] = $data;
+		return $data;
 
 	}
 
-	public static function select()
+	public static function delete($domain, $item)
 	{
+		// Validate the data coming into the function
+		if($domain == '')
+		{
+			self::error('Missing required parameter domain');
+			return FALSE;
+		}
+		if($item == '')
+		{
+			self::error('Missing required parameter name');
+			return FALSE;
+		}
 
+
+		$params['Action'] 	= 'DeleteAttributes';
+		$params['DomainName'] 	= $domain;
+		$params['ItemName'] 	= $item;
+
+		// This makes the call to AWS and returns either FALSE or TRUE
+		if(!self::call('DELETE', $params))
+		{
+			return FALSE;
+		}
+
+		// For this function, we just return the success code on whether
+		// or not the item was successfully saved -- no data to be returned here
+		return self::$response['success'];	
 	}
 
-	private static function error($string)
+	private static function error($string = '')
 	{
-
-		print "STRING:";
-		print_r($string);
-		self::$errors[] = $string;
+		if($string == '')
+		{
+			return self::$errors;
+		}
+		else
+		{
+			print "STRING:";
+			print_r($string);
+			self::$errors[] = $string;
+		}
 	}
 
 }

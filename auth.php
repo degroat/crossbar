@@ -112,17 +112,14 @@ class auth
 		$cookie['groups'] = $groups;
 		$cookie_value = crypto::encrypt($salt, serialize($cookie));
 
-		// Set the cookie... even for this page load to be safe
-		$_COOKIE[self::$cookie_name] = $cookie_value;
-
 		if($time > 0)
 		{
-			setcookie(self::$cookie_name, $cookie_value, time() + $time);
+			$time += time();
 		}
-		else
-		{
-			setcookie(self::$cookie_name, $cookie_value);
-		}
+
+		// Set the cookie... even for this page load to be safe
+		$_COOKIE[self::$cookie_name] = $cookie_value;
+		setcookie(self::$cookie_name, $cookie_value, $time, '/');
 
 		// Reset the user groups since they've changed
 		self::$user_groups = array();
