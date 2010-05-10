@@ -76,6 +76,8 @@ class crossbar
 		}
 
 		
+		$this->build_params();
+
 		// If a _pre function is defined, call it before the action
 		if(method_exists($this->controller_object, '_pre') && !$this->auth_error)
 		{
@@ -87,7 +89,6 @@ class crossbar
 		{
 			$this->error("Invalid Action '" . $this->action . "' in controller '" . $this->controller . "'");
 		}
-		$this->build_params();
 		$action = $this->action;
 		$this->controller_object->$action();
 
