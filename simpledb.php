@@ -196,6 +196,11 @@ class simpledb
 			{
 				foreach($val as $v)
 				{
+					if(is_string($v) && strlen($v) > 1024)
+					{
+						$v = substr($v, 0, 1024);
+					}
+
 					$params['Attribute.'.$count.'.Name'] = $var;
 					$params['Attribute.'.$count.'.Replace'] = 'true';
 					$params['Attribute.'.$count.'.Value'][] = $v;
@@ -204,6 +209,11 @@ class simpledb
 			}
 			else
 			{
+				if(is_string($val) && strlen($val) > 1024)
+				{
+					$val = substr($val, 0, 1024);
+				}
+
 				$params['Attribute.'.$count.'.Name'] = $var;
 				$params['Attribute.'.$count.'.Replace'] = 'true';
 				$params['Attribute.'.$count.'.Value'] = $val;
