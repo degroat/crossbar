@@ -20,7 +20,7 @@ class crossbar
 		$this->controllers_path		= $application_root . 'controllers/';
 		$this->layouts_path 		= $application_root . 'layouts/';
 		$this->modules_path 		= $application_root . 'modules/';
-		$this->starting_include_path 	= split(PATH_SEPARATOR, get_include_path());
+		$this->starting_include_path 	= explode(PATH_SEPARATOR, get_include_path());
 		$this->custom_include_paths	= array();
 
 		$this->set_include_path();
@@ -156,8 +156,8 @@ class crossbar
 
 	private function parse_url()
 	{
-		$split_at_question = split("\?", trim($_SERVER['REQUEST_URI']));
-		$split_at_slash = split("/", trim($split_at_question[0]));
+		$split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
+		$split_at_slash = explode("/", trim($split_at_question[0]));
 
 		if(!isset($split_at_slash[1]) || $split_at_slash[1] == "")
 		{
@@ -184,8 +184,8 @@ class crossbar
 
 	private function build_params()
 	{
-		$split_at_question = split("\?", trim($_SERVER['REQUEST_URI']));
-		$split_at_slash = split("/", trim($split_at_question[0]));
+		$split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
+		$split_at_slash = explode("/", trim($split_at_question[0]));
 
 		for($i = 3; $i <= count($split_at_slash)-1; $i += 2)
 		{
@@ -217,8 +217,8 @@ class crossbar
 
 	private function build_rewrite_params()
 	{
-		$split_at_question = split("\?", trim($_SERVER['REQUEST_URI']));
-		$_GET['_params'] = array_map('urldecode', split("/", trim($split_at_question[0])));
+		$split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
+		$_GET['_params'] = array_map('urldecode', explode("/", trim($split_at_question[0])));
 		array_shift($_GET['_params']);
 		array_shift($_GET['_params']);
 	}
