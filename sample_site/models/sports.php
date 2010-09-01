@@ -14,7 +14,7 @@ class sports
 	{
 		$sql = "select * from sports";
 		$result = mysql::query('main', $sql);
-		if(PEAR::isError($result))
+		if(mysql::is_error())
 		{
 			return FALSE;
 		}
