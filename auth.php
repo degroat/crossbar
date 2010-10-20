@@ -125,6 +125,11 @@ class auth
 		self::$user_groups = array();
 	}
 
+	public static function logout()
+	{
+		setcookie(self::$cookie_name, $cookie_value, time() - 3600, '/');
+	}
+
 	public static function group($group, $config)
 	{
 		if($group == '' || !is_array($config) || count($config) == 0)

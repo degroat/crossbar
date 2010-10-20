@@ -11,6 +11,30 @@ class validate
 		return FALSE;
 	}
 
+
+	public static function md5($value)
+	{
+		if(strlen($value) != 32)
+		{
+			return FALSE;
+		}
+		elseif(!self::alphanumeric($value))
+		{
+			return FALSE;
+		}
+		return TRUE;
+
+	}
+
+	public static function alphanumeric($value)
+	{
+		if(preg_match("/[^a-zA-Z0-9]/", $value))
+		{
+			return FALSE;
+		}
+		return TRUE;
+	}
+
 	public static function username($value)
 	{
 		// Allowed chars -- A-Z, a-z, 0-9, _

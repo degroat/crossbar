@@ -6,6 +6,7 @@ class mc
 	private static $is_valid = FALSE;
 	private static $is_connected = FALSE;
 	private static $messages = array();
+	private static $key_prefix = FALSE;
 
 	public static function connect($server, $port = 11211)
 	{
@@ -32,6 +33,17 @@ class mc
 		}
 	}
 
+	public static function set_key_prefix($prefix)
+	{
+		if(!validate::alphanumeric($prefix))
+		{
+			self::$messages[] = "Prefix must be alphanumeric with no spaces";
+			return FALSE;
+		}
+		self::$key_prefix = $prefix;
+		return TRUE;
+	}
+
 	public static function set($var, $val, $seconds = 0)
 	{
 		if(self::$is_connected)
@@ -39,6 +51,10 @@ class mc
 			try
 			{
 				self::$is_valid = TRUE;
+				if(self::$key_prefix)
+				{
+					$var = $key_prefix . "-" . $var;
+				}
 				return self::$mc->set($var, array('value'=>$val), FALSE, $seconds);
 			}
 			catch(Exception $e)
@@ -62,6 +78,10 @@ class mc
 		{
 			try
 			{
+				if(self::$key_prefix)
+				{
+					$var = $key_prefix . "-" . $var;
+				}
 				$result = self::$mc->get($var);
 				if(is_array($result))
 				{
