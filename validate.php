@@ -35,6 +35,15 @@ class validate
 		return TRUE;
 	}
 
+	public static function url($value)
+	{
+		if (filter_var($value, FILTER_VALIDATE_URL))
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
 	public static function username($value)
 	{
 		// Allowed chars -- A-Z, a-z, 0-9, _
@@ -54,9 +63,5 @@ class validate
 		return TRUE;
 	}	
 
-	public static function url($value)
-	{
-
-	}
 }
 ?>
