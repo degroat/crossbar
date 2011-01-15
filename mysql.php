@@ -157,6 +157,10 @@ class mysql
 			}
 			return $string;
 		}
+		elseif(is_null($string))
+		{
+			return "NULL";
+		}
 		else
 		{
 			return "'" . self::escape($string) . "'";

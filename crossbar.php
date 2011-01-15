@@ -6,11 +6,14 @@
 
 class crossbar
 {
-	public function __construct()
+	public function __construct($script_mode = FALSE)
 	{
-		$this->parse_url();
 
-		$this->view 			= $this->controller . "/" . $this->action;
+        if(!$script_mode)
+        {
+		    $this->parse_url();
+		    $this->view 			= $this->controller . "/" . $this->action;
+        }
 
 		$application_root	 	= str_replace('htdocs', '', $_SERVER['DOCUMENT_ROOT']);
 		$this->framework_path 		= $application_root . 'framework/';
@@ -156,7 +159,8 @@ class crossbar
 
 	private function parse_url()
 	{
-		$split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
+		$split_at_question = explode('?', trim($_SERVER['REQUEST_URI']));
+
 		$split_at_slash = explode("/", trim($split_at_question[0]));
 
 		if(!isset($split_at_slash[1]) || $split_at_slash[1] == "")
@@ -236,13 +240,15 @@ class crossbar
 					implode(
 						PATH_SEPARATOR, 
 						array_merge (
-							$this->starting_include_path, 
 							$application_autoinclude_folders,
-							$this->custom_include_paths
+							$this->custom_include_paths,
+							$this->starting_include_path
 							)
 						)
 		
 				);
+
+
 	}
 
 	private function set_controller_object()
