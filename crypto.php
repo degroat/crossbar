@@ -25,14 +25,14 @@ class crypto
 		self::$iv = mcrypt_create_iv(self::$iv_size, MCRYPT_RAND); 	
 	}
 
-	private function base64url_encode($plainText)
+	private static function base64url_encode($plainText)
 	{
 		$base64 = base64_encode($plainText);
 		$base64url = strtr($base64, '+/=', '-_*');
 		return ($base64url);   
 	}
 
-	private function base64url_decode($base64url)
+	private static function base64url_decode($base64url)
 	{
 		$base64 = strtr($base64url, '-_*', '+/=');
 		$plainText = base64_decode($base64);
