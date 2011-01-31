@@ -161,7 +161,7 @@ class auth
 		}		
 		
 		// Decrypt and unserialize the value in the cookie
-		$decrypted_value = unserialize(crypto::decrypt($salt, $_COOKIE[self::$cookie_name]));
+		$decrypted_value = @unserialize(crypto::decrypt($salt, $_COOKIE[self::$cookie_name]));
 
 		if($decrypted_value === FALSE)
 		{

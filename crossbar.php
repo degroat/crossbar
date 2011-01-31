@@ -25,6 +25,7 @@ class crossbar
 		$this->modules_path 		= $application_root . 'modules/';
 		$this->starting_include_path 	= explode(PATH_SEPARATOR, get_include_path());
 		$this->custom_include_paths	= array();
+        $this->missing_controller = '';
 
 		$this->set_include_path();
 	}
@@ -38,16 +39,20 @@ class crossbar
 		$this->auth_error = FALSE;
 
 		// If the controller doesn't exist, send them to index/_error
+        $missing_controller = 0;
 		if(!$this->set_controller_object())
 		{	
+            $this->missing_controller = $this->controller;
 			$this->controller = "index";
 			$this->action = "_error";
 			$this->set_controller_object();
 			$this->view = $this->controller . "/" . $this->action;
+            $missing_controller = 1;
 		}	
 
 		// If the action we're not looking for doesn't exist and a re-write action does exist, use the rewrite one
-		if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite'))
+        // OR... if we  have encountered a missing controller, let's see if the index/_rewrite exists
+		if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite') || $missing_controller)
 		{
 			$this->build_rewrite_params();
 			$this->action =$this->controller_object->_rewrite();
@@ -179,7 +184,7 @@ class crossbar
 			$this->action = $split_at_slash[2];
 		}
 	
-		if($this->controller != preg_replace("/[^a-zA-Z0-9\s]/", "", $this->controller))
+		if($this->controller != preg_replace("/[^a-zA-Z0-9\s-]/", "", $this->controller))
 		{
 			$this->error("Invalid Controller '" . $this->controller . "'");
 		}
@@ -225,6 +230,11 @@ class crossbar
 		$_GET['_params'] = array_map('urldecode', explode("/", trim($split_at_question[0])));
 		array_shift($_GET['_params']);
 		array_shift($_GET['_params']);
+        
+        if($this->missing_controller != "")
+        {
+            array_unshift($_GET['_params'], $this->missing_controller);
+        }
 	}
 
 	private function set_include_path()
