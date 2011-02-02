@@ -26,6 +26,7 @@ class crossbar
 		$this->starting_include_path 	= explode(PATH_SEPARATOR, get_include_path());
 		$this->custom_include_paths	= array();
         $this->missing_controller = '';
+        $this->is_rewrite = FALSE;
 
 		$this->set_include_path();
 	}
@@ -54,6 +55,7 @@ class crossbar
         // OR... if we  have encountered a missing controller, let's see if the index/_rewrite exists
 		if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite') || $missing_controller)
 		{
+            $this->is_rewrite = TRUE;
 			$this->build_rewrite_params();
 			$this->action =$this->controller_object->_rewrite();
 			if(empty($this->action))
@@ -83,7 +85,6 @@ class crossbar
 			$this->view = $this->controller . "/" . $this->action;
 		}
 
-		
 		$this->build_params();
 
 		// If a _pre function is defined, call it before the action
@@ -193,6 +194,12 @@ class crossbar
 
 	private function build_params()
 	{
+        // If this is a re-write, we shouldn't do this
+        if($this->is_rewrite)
+        {
+            return;
+        }
+
 		$split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
 		$split_at_slash = explode("/", trim($split_at_question[0]));
 
