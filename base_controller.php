@@ -6,10 +6,20 @@ class base_controller
 		$this->included_css_files 	= array();
 		$this->included_js_files 	= array();
 		$this->layout_disabled 		= FALSE;
-		$this->layout 			= 'default';
+		$this->layout 			    = 'default';
 		$this->layout_header 		= 'header';
 		$this->layout_footer 		= 'footer';
+        $this->title_separator      = ' | ';
+        $this->title_parts          = array();
 	}
+
+    protected function title_append($val)
+    {
+        if($val != "")
+        {
+            $this->title_parts[] = $val;
+        }
+    }
 
 	protected function include_css_file($file)
 	{

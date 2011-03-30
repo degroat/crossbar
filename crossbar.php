@@ -6,325 +6,325 @@
 
 class crossbar
 {
-	public function __construct($script_mode = FALSE)
-	{
+    public function __construct($script_mode = FALSE)
+    {
 
         if(!$script_mode)
         {
-		    $this->parse_url();
-		    $this->view 			= $this->controller . "/" . $this->action;
+            $this->parse_url();
+            $this->view                 = $this->controller . "/" . $this->action;
         }
 
-		$application_root	 	= str_replace('htdocs', '', $_SERVER['DOCUMENT_ROOT']);
-		$this->framework_path 		= $application_root . 'framework/';
-		$this->views_path 		= $application_root . 'views/';
-		$this->models_path 		= $application_root . 'models/';
-		$this->utilities_path 		= $application_root . 'utilities/';
-		$this->controllers_path		= $application_root . 'controllers/';
-		$this->layouts_path 		= $application_root . 'layouts/';
-		$this->modules_path 		= $application_root . 'modules/';
-		$this->starting_include_path 	= explode(PATH_SEPARATOR, get_include_path());
-		$this->custom_include_paths	= array();
-        $this->missing_controller = '';
-        $this->is_rewrite = FALSE;
+        $application_root               = str_replace('htdocs', '', $_SERVER['DOCUMENT_ROOT']);
+        $this->framework_path           = $application_root . 'framework/';
+        $this->views_path               = $application_root . 'views/';
+        $this->models_path              = $application_root . 'models/';
+        $this->utilities_path           = $application_root . 'utilities/';
+        $this->controllers_path         = $application_root . 'controllers/';
+        $this->layouts_path             = $application_root . 'layouts/';
+        $this->modules_path             = $application_root . 'modules/';
+        $this->starting_include_path    = explode(PATH_SEPARATOR, get_include_path());
+        $this->custom_include_paths     = array();
+        $this->missing_controller       = '';
+        $this->is_rewrite               = FALSE;
 
-		$this->set_include_path();
-	}
+        $this->set_include_path();
+    }
 
-	// ---------------------------------------
-	// Public Functions
-	// ---------------------------------------
+    // ---------------------------------------
+    // Public Functions
+    // ---------------------------------------
 
-	public function go()
-	{
-		$this->auth_error = FALSE;
+    public function go()
+    {
+        $this->auth_error = FALSE;
 
-		// If the controller doesn't exist, send them to index/_error
+        // If the controller doesn't exist, send them to index/_error
         $missing_controller = 0;
-		if(!$this->set_controller_object())
-		{	
+        if(!$this->set_controller_object())
+        {    
             $this->missing_controller = $this->controller;
-			$this->controller = "index";
-			$this->action = "_error";
-			$this->set_controller_object();
-			$this->view = $this->controller . "/" . $this->action;
+            $this->controller = "index";
+            $this->action = "_error";
+            $this->set_controller_object();
+            $this->view = $this->controller . "/" . $this->action;
             $missing_controller = 1;
-		}	
+        }    
 
-		// If the action we're not looking for doesn't exist and a re-write action does exist, use the rewrite one
+        // If the action we're not looking for doesn't exist and a re-write action does exist, use the rewrite one
         // OR... if we  have encountered a missing controller, let's see if the index/_rewrite exists
-		if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite') || $missing_controller)
-		{
+        if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite') || $missing_controller)
+        {
             $this->is_rewrite = TRUE;
-			$this->build_rewrite_params();
-			$this->action =$this->controller_object->_rewrite();
-			if(empty($this->action))
-			{
-				$this->error("_rewrite function must return value to set as action");
-			}
-			unset($_GET['_params']);
-			$this->controller_object->action = $this->action;
-			$this->view = $this->controller . "/" . $this->action;
-		}
+            $this->build_rewrite_params();
+            $this->action =$this->controller_object->_rewrite();
+            if(empty($this->action))
+            {
+                $this->error("_rewrite function must return value to set as action");
+            }
+            unset($_GET['_params']);
+            $this->controller_object->action = $this->action;
+            $this->view = $this->controller . "/" . $this->action;
+        }
 
-		// Verify that the action exists on this controller
-		if(!method_exists($this->controller_object, $this->action))
-		{
-			$this->action = '_error';
-			$this->controller_object->action = $this->action;
-			$this->view = $this->controller . "/" . $this->action;
-		}
+        // Verify that the action exists on this controller
+        if(!method_exists($this->controller_object, $this->action))
+        {
+            $this->action = '_error';
+            $this->controller_object->action = $this->action;
+            $this->view = $this->controller . "/" . $this->action;
+        }
 
-		// Verify that the user has permissions to view this controller/action... unless it's a _error action
-		if(!auth::access($this->controller, $this->action) && $this->action != '_error')
-		{
-			// User isn't allowed to access this controller/action, so we send them to the _error action on the same controller
-			$this->auth_error = TRUE;
-			$this->action = '_auth';
-			$this->controller_object->action = $this->action;
-			$this->view = $this->controller . "/" . $this->action;
-		}
+        // Verify that the user has permissions to view this controller/action... unless it's a _error action
+        if(!auth::access($this->controller, $this->action) && $this->action != '_error')
+        {
+            // User isn't allowed to access this controller/action, so we send them to the _error action on the same controller
+            $this->auth_error = TRUE;
+            $this->action = '_auth';
+            $this->controller_object->action = $this->action;
+            $this->view = $this->controller . "/" . $this->action;
+        }
 
-		$this->build_params();
+        $this->build_params();
 
-		// If a _pre function is defined, call it before the action
-		if(method_exists($this->controller_object, '_pre') && !$this->auth_error)
-		{
-			$this->controller_object->_pre();
-		}
+        // If a _pre function is defined, call it before the action
+        if(method_exists($this->controller_object, '_pre') && !$this->auth_error)
+        {
+            $this->controller_object->_pre();
+        }
 
-		// Validate that this is an allowed action
-		if($this->action != preg_replace("/[^a-zA-Z0-9\s]/", "", $this->action) && $this->action != '_error' && $this->action != '_auth')
-		{
-			$this->error("Invalid Action '" . $this->action . "' in controller '" . $this->controller . "'");
-		}
-		$action = $this->action;
-		$this->controller_object->$action();
-
-
-		// If a _post function is defined, call it before the action
-		if(method_exists($this->controller_object, '_post') && !$this->auth_error)
-		{
-			$this->controller_object->_post();
-		}
-		
-		$this->import_controller_values();
-		$this->destroy_controller();
-		$this->print_layout();
+        // Validate that this is an allowed action
+        if($this->action != preg_replace("/[^a-zA-Z0-9\s]/", "", $this->action) && $this->action != '_error' && $this->action != '_auth')
+        {
+            $this->error("Invalid Action '" . $this->action . "' in controller '" . $this->controller . "'");
+        }
+        $action = $this->action;
+        $this->controller_object->$action();
 
 
-	}
-
-	public function add_to_include_path($path)
-	{
-		$this->custom_include_paths[] = $path;
-		$this->set_include_path();
-	}
-
-	public function set_framework_path($path)
-	{
-		$this->framework_path = $path;
-		$this->set_include_path();
-	}
-
-	public function set_view_path($path)
-	{
-		$this->views_path = $path;
-	}
-
-	public function set_models_path($path)
-	{
-		$this->models_path = $path;
-		$this->set_include_path();
-	}
-
-	public function set_utilities_path($path)
-	{
-		$this->utilities_path = $path;
-		$this->set_include_path();
-	}
-
-	public function set_controllers_path($path)
-	{
-		$this->controllers_path = $path;
-	}
-
-	public function set_layouts_path($path)
-	{
-		$this->layouts_path = $path;
-	}
-
-	public function set_modules_path($path)
-	{
-		$this->modules_path = $path;
-	}
-
-	// ---------------------------------------
-	// Private Functions
-	// ---------------------------------------
-
-	private function parse_url()
-	{
-		$split_at_question = explode('?', trim($_SERVER['REQUEST_URI']));
-
-		$split_at_slash = explode("/", trim($split_at_question[0]));
-
-		if(!isset($split_at_slash[1]) || $split_at_slash[1] == "")
-		{
-			$this->controller = "index";
-			$this->action = "index";
-		}
-		elseif(!isset($split_at_slash[2]) || $split_at_slash[2] == "")
-		{
-			$this->controller = $split_at_slash[1];
-			$this->action = "index";
-		}
-		else
-		{
-			$this->controller = $split_at_slash[1];
-			$this->action = $split_at_slash[2];
-		}
-	
-		if($this->controller != preg_replace("/[^a-zA-Z0-9\s-]/", "", $this->controller))
-		{
-			$this->error("Invalid Controller '" . $this->controller . "'");
-		}
-	}
+        // If a _post function is defined, call it before the action
+        if(method_exists($this->controller_object, '_post') && !$this->auth_error)
+        {
+            $this->controller_object->_post();
+        }
+        
+        $this->import_controller_values();
+        $this->destroy_controller();
+        $this->print_layout();
 
 
-	private function build_params()
-	{
+    }
+
+    public function add_to_include_path($path)
+    {
+        $this->custom_include_paths[] = $path;
+        $this->set_include_path();
+    }
+
+    public function set_framework_path($path)
+    {
+        $this->framework_path = $path;
+        $this->set_include_path();
+    }
+
+    public function set_view_path($path)
+    {
+        $this->views_path = $path;
+    }
+
+    public function set_models_path($path)
+    {
+        $this->models_path = $path;
+        $this->set_include_path();
+    }
+
+    public function set_utilities_path($path)
+    {
+        $this->utilities_path = $path;
+        $this->set_include_path();
+    }
+
+    public function set_controllers_path($path)
+    {
+        $this->controllers_path = $path;
+    }
+
+    public function set_layouts_path($path)
+    {
+        $this->layouts_path = $path;
+    }
+
+    public function set_modules_path($path)
+    {
+        $this->modules_path = $path;
+    }
+
+    // ---------------------------------------
+    // Private Functions
+    // ---------------------------------------
+
+    private function parse_url()
+    {
+        $split_at_question = explode('?', trim($_SERVER['REQUEST_URI']));
+
+        $split_at_slash = explode("/", trim($split_at_question[0]));
+
+        if(!isset($split_at_slash[1]) || $split_at_slash[1] == "")
+        {
+            $this->controller = "index";
+            $this->action = "index";
+        }
+        elseif(!isset($split_at_slash[2]) || $split_at_slash[2] == "")
+        {
+            $this->controller = $split_at_slash[1];
+            $this->action = "index";
+        }
+        else
+        {
+            $this->controller = $split_at_slash[1];
+            $this->action = $split_at_slash[2];
+        }
+    
+        if($this->controller != preg_replace("/[^a-zA-Z0-9\s-]/", "", $this->controller))
+        {
+            $this->error("Invalid Controller '" . $this->controller . "'");
+        }
+    }
+
+
+    private function build_params()
+    {
         // If this is a re-write, we shouldn't do this
         if($this->is_rewrite)
         {
             return;
         }
 
-		$split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
-		$split_at_slash = explode("/", trim($split_at_question[0]));
+        $split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
+        $split_at_slash = explode("/", trim($split_at_question[0]));
 
-		for($i = 3; $i <= count($split_at_slash)-1; $i += 2)
-		{
-			if(isset($split_at_slash[$i]))
-			{
-				$param = $split_at_slash[$i];
+        for($i = 3; $i <= count($split_at_slash)-1; $i += 2)
+        {
+            if(isset($split_at_slash[$i]))
+            {
+                $param = $split_at_slash[$i];
 
-				$value = "";
-				if(isset($split_at_slash[$i+1]))
-				{
-					$value = $split_at_slash[$i+1];
-				}
-	
-				if(!isset($_GET[$param]))
-				{
-					$_GET[$param] = urldecode($value);
-				}
-				elseif(is_array($_GET[$param]))
-				{
-					$_GET[$param][] = urldecode($value);
-				}
-				else
-				{
-					$_GET[$param] = array($_GET[$param], urldecode($value));
-				}
-			}
-		}
-	}
+                $value = "";
+                if(isset($split_at_slash[$i+1]))
+                {
+                    $value = $split_at_slash[$i+1];
+                }
+    
+                if(!isset($_GET[$param]))
+                {
+                    $_GET[$param] = urldecode($value);
+                }
+                elseif(is_array($_GET[$param]))
+                {
+                    $_GET[$param][] = urldecode($value);
+                }
+                else
+                {
+                    $_GET[$param] = array($_GET[$param], urldecode($value));
+                }
+            }
+        }
+    }
 
-	private function build_rewrite_params()
-	{
-		$split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
-		$_GET['_params'] = array_map('urldecode', explode("/", trim($split_at_question[0])));
-		array_shift($_GET['_params']);
-		array_shift($_GET['_params']);
+    private function build_rewrite_params()
+    {
+        $split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
+        $_GET['_params'] = array_map('urldecode', explode("/", trim($split_at_question[0])));
+        array_shift($_GET['_params']);
+        array_shift($_GET['_params']);
         
         if($this->missing_controller != "")
         {
             array_unshift($_GET['_params'], $this->missing_controller);
         }
-	}
+    }
 
-	private function set_include_path()
-	{
-		$application_autoinclude_folders = array(
-			$this->framework_path,
-			$this->models_path,
-			$this->utilities_path
-		);
-
-
-		set_include_path(
-					implode(
-						PATH_SEPARATOR, 
-						array_merge (
-							$application_autoinclude_folders,
-							$this->custom_include_paths,
-							$this->starting_include_path
-							)
-						)
-		
-				);
+    private function set_include_path()
+    {
+        $application_autoinclude_folders = array(
+            $this->framework_path,
+            $this->models_path,
+            $this->utilities_path
+        );
 
 
-	}
+        set_include_path(
+                    implode(
+                        PATH_SEPARATOR, 
+                        array_merge (
+                            $application_autoinclude_folders,
+                            $this->custom_include_paths,
+                            $this->starting_include_path
+                            )
+                        )
+        
+                );
 
-	private function set_controller_object()
-	{
-		$controller_filename = $this->controller . ".php";
-		$controller_class_name = $this->controller . "_controller";
 
-		if(!file_exists($this->controllers_path . $controller_filename))
-		{
-			return FALSE;
-		}
-		require_once 'base_controller.php'; // have to manually include this because the underscore breaks the autoload
-		require_once $this->controllers_path . $controller_filename;
-		$this->controller_object = new $controller_class_name;
-		$this->controller_object->controller = $this->controller;
-		$this->controller_object->action = $this->action;
+    }
 
-		return TRUE;
-	}
+    private function set_controller_object()
+    {
+        $controller_filename = $this->controller . ".php";
+        $controller_class_name = $this->controller . "_controller";
 
-	/*
-	* This function takes the values that were set in the controller and makes
-	* them available in the framework. This makes the values accessible in the
-	* layouts, views, and modules
-	*/
-	private function import_controller_values()
-	{
-		$reserved_params = array('application_root', 'controller', 'action');
+        if(!file_exists($this->controllers_path . $controller_filename))
+        {
+            return FALSE;
+        }
+        require_once 'base_controller.php'; // have to manually include this because the underscore breaks the autoload
+        require_once $this->controllers_path . $controller_filename;
+        $this->controller_object = new $controller_class_name;
+        $this->controller_object->controller = $this->controller;
+        $this->controller_object->action = $this->action;
 
-		foreach($this->controller_object as $var => $val)
-		{
-			if(!in_array($var, $reserved_params))
-			{
-				$this->$var = $val;
-			}
-			unset($this->controller_object->$var); // Reduces memory as values are copied into framework
-		}
-	}
+        return TRUE;
+    }
 
-	private function destroy_controller()
-	{
-		unset($this->controller_object);
-	}
+    /*
+    * This function takes the values that were set in the controller and makes
+    * them available in the framework. This makes the values accessible in the
+    * layouts, views, and modules
+    */
+    private function import_controller_values()
+    {
+        $reserved_params = array('application_root', 'controller', 'action');
 
-	/*
-	* This includes the layout file unless the layout is disabled
-	*/
-	private function print_layout()
-	{
-		if($this->layout_disabled == TRUE)
-		{
-			$this->print_view();
-		}
-		else
-		{
-			$layout_filename = $this->layouts_path . $this->layout . ".phtml";
+        foreach($this->controller_object as $var => $val)
+        {
+            if(!in_array($var, $reserved_params))
+            {
+                $this->$var = $val;
+            }
+            unset($this->controller_object->$var); // Reduces memory as values are copied into framework
+        }
+    }
+
+    private function destroy_controller()
+    {
+        unset($this->controller_object);
+    }
+
+    /*
+    * This includes the layout file unless the layout is disabled
+    */
+    private function print_layout()
+    {
+        if($this->layout_disabled == TRUE)
+        {
+            $this->print_view();
+        }
+        else
+        {
+            $layout_filename = $this->layouts_path . $this->layout . ".phtml";
             if($this->is_mobile())
             {
-			    $temp_layout_filename = $this->layouts_path . $this->layout . ".mobile.phtml";
+                $temp_layout_filename = $this->layouts_path . $this->layout . ".mobile.phtml";
                 if(file_exists($temp_layout_filename))
                 {
                     $layout_filename = $temp_layout_filename;
@@ -332,68 +332,74 @@ class crossbar
             }
 
 
-			if(!file_exists($layout_filename))
-			{
-				$this->error('Missing layout ' . $this->layout . '.phtml');
-			}
-			require_once $layout_filename;
-		}
-	}
+            if(!file_exists($layout_filename))
+            {
+                $this->error('Missing layout ' . $this->layout . '.phtml');
+            }
+            require_once $layout_filename;
+        }
+    }
 
-	private function print_view()
-	{
-		$view_filename = $this->views_path . $this->view . '.phtml';
+    private function print_view()
+    {
+        $view_filename = $this->views_path . $this->view . '.phtml';
         if($this->is_mobile())
         {
-		    $temp_view_filename = $this->views_path . $this->view . '.mobile.phtml';
+            $temp_view_filename = $this->views_path . $this->view . '.mobile.phtml';
             if(file_exists($temp_view_filename))
             {
                 $view_filename = $temp_view_filename;
             }
         }
 
-		if(!file_exists($view_filename))
-		{
-			$this->error('Missing view ' . $this->view . '.phtml');
-		}
-		require_once $view_filename;
-	}
+        if(!file_exists($view_filename))
+        {
+            $this->error('Missing view ' . $this->view . '.phtml');
+        }
+        require_once $view_filename;
+    }
 
-	private function print_module($module)
-	{
-		$module_filename = $this->modules_path . $module . '.phtml';
-		if(!file_exists($module_filename))
-		{
-			$this->error('Missing module ' . $module . '.phtml');
-		}
-		require_once $module_filename;
-	}
+    private function print_module($module, $values = array())
+    {
+        if(!is_array($values))
+        {
+            $this->error('Second paramater to print_module must be an array');
+        }
+        extract($values);
 
-	private function include_js_files()
-	{
-		if(isset($this->included_js_files) && is_array($this->included_js_files))
-		{
-			foreach($this->included_js_files as $file)
-			{
-				?>
-				<script type="text/javascript" src="<?=$file ?>"></script>
-				<?
-			}
-		}
-	}
+        $module_filename = $this->modules_path . $module . '.phtml';
+        if(!file_exists($module_filename))
+        {
+            $this->error('Missing module ' . $module . '.phtml');
+        }
+        require $module_filename;
+    }
 
-	private function include_css_files()
-	{
-		if(isset($this->included_css_files) && is_array($this->included_css_files))
-		{
-			foreach($this->included_css_files as $file)
-			{
-				?>
-				<link href="<?=$file ?>" media="screen" rel="stylesheet" type="text/css" />
-				<?
-			}
-		}
-	}
+    private function include_js_files()
+    {
+        if(isset($this->included_js_files) && is_array($this->included_js_files))
+        {
+            foreach($this->included_js_files as $file)
+            {
+                ?>
+                <script type="text/javascript" src="<?=$file ?>"></script>
+                <?
+            }
+        }
+    }
+
+    private function include_css_files()
+    {
+        if(isset($this->included_css_files) && is_array($this->included_css_files))
+        {
+            foreach($this->included_css_files as $file)
+            {
+                ?>
+                <link href="<?=$file ?>" media="screen" rel="stylesheet" type="text/css" />
+                <?
+            }
+        }
+    }
 
     private function is_mobile()
     {
@@ -412,17 +418,24 @@ class crossbar
         return FALSE;
     }
 
-	private function error($error)
-	{
-		$error = "Crossbar: " . $error;
-		error_log($error);
-		trigger_error($error, E_USER_ERROR);
-		exit;
-	}
+    private function title($default_title)
+    {
+        if($default_title != "")
+        {
+            array_unshift($this->title_parts, $default_title);
+        }
+        return implode($this->title_separator, $this->title_parts);
+    }
 
-	
+    private function error($error)
+    {
+        $error = "Crossbar: " . $error;
+        error_log($error);
+        trigger_error($error, E_USER_ERROR);
+        exit;
+    }
+
+    
 }
-
-
 
 ?>
