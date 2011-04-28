@@ -17,10 +17,10 @@ class auth
 
 			// Grab the logged in user, and add their groups 
 			// to the groups we need to check
-			$user = self::user();
-			if($user)
+			$groups = self::groups();
+			if($groups !== FALSE)
 			{
-				self::$user_groups = array_merge($user['groups'], self::$user_groups);
+				self::$user_groups = array_merge($groups, self::$user_groups);
 			}
 		}
 	}
@@ -142,7 +142,40 @@ class auth
 		return TRUE;
 	}
 
-	public static function user()
+    
+    // RETURNS this user's groups
+    public static function groups()
+    {
+		// Check to see if user is logged in
+		if(!isset($_COOKIE[self::$cookie_name]))
+		{
+			self::error('User not logged in');
+			return FALSE;
+		}
+		
+		// Make sure we can decrypt the data we get back
+		// by generating a salt
+		$salt = self::salt();
+		if(!$salt)
+		{		
+			self::error("Invalid Salt");
+			return FALSE;
+		}		
+		
+		// Decrypt and unserialize the value in the cookie
+		$decrypted_value = @unserialize(crypto::decrypt($salt, $_COOKIE[self::$cookie_name]));
+
+		if($decrypted_value === FALSE)
+		{
+			self::error('Failed decryption cookie (salt probably changed)');
+			return FALSE;
+		}
+
+        return $decrypted_value['groups'];
+        
+    }
+
+	public static function user($key = NULL)
 	{
 		// Check to see if user is logged in
 		if(!isset($_COOKIE[self::$cookie_name]))
@@ -169,7 +202,21 @@ class auth
 			return FALSE;
 		}
 
-		return $decrypted_value;
+        $user = $decrypted_value['user'];
+
+        // If a specific key was requested, send that value back
+        if($key != NULL && isset($user[$key]))
+        {
+            return $user[$key];
+        }
+        elseif($key != NULL)
+        {       
+            return NULL;
+        }       
+        else
+        {
+		    return $user;
+        }    
 	}
 
 	private static function salt()

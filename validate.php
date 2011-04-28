@@ -44,24 +44,40 @@ class validate
 		return FALSE;
 	}
 
-	public static function username($value)
-	{
-		// Allowed chars -- A-Z, a-z, 0-9, _
-		$min_length = 3; 
-		$max_length = 15; 
-		
-		/*	 
-		if(strlen($value) < $min_length || strlen($value) > $max_length)
-		{
-			return FALSE;
-		}
-		*/
-		if(!preg_match("/[^A-z0-9_\-]/", $value))
-		{
-			return FALSE;
-		}
-		return TRUE;
-	}	
+    public static function length($value, $min_chars, $max_chars)
+    {
+        if(strlen($value) >= $min_chars && strlen($value) <= $max_chars)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
 
+    public static function minimum($value, $min)
+    {
+        if(is_numeric($value) && $value >= $min)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    public static function date($date)
+    {
+        if(strtotime($date) === FALSE)
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    public static function after($date1, $date2)
+    {
+        if(strtotime($date1) > strtotime($date2))
+        {
+            return TRUE;;
+        }
+        return FALSE;
+    }
 }
 ?>
