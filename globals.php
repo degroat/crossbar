@@ -7,9 +7,9 @@ class globals
         $server_var = "_" . strtoupper($method);
         $var = $arguments[0];
 
-        if(!isset($GLOBALS[$server_var][$var]))
+        if(empty($GLOBALS[$server_var][$var]))
         {
-            if(isset($arguments[1]))
+            if(!empty($arguments[1]))
             {
                 return $arguments[1];
             }
