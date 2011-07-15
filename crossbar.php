@@ -8,6 +8,7 @@ class crossbar
 {
     public function __construct($script_mode = FALSE)
     {
+        $this->start_time               = microtime(true);
 
         if(!$script_mode)
         {
@@ -27,6 +28,8 @@ class crossbar
         $this->custom_include_paths     = array();
         $this->missing_controller       = '';
         $this->is_rewrite               = FALSE;
+        $this->api_mode                 = FALSE;
+        $this->debug_mode               = FALSE;
 
         $this->set_include_path();
     }
@@ -53,7 +56,8 @@ class crossbar
 
         // If the action we're not looking for doesn't exist and a re-write action does exist, use the rewrite one
         // OR... if we  have encountered a missing controller, let's see if the index/_rewrite exists
-        if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite') || $missing_controller)
+        //if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite') || $missing_controller)
+        if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite'))
         {
             $this->is_rewrite = TRUE;
             $this->build_rewrite_params();
@@ -110,7 +114,15 @@ class crossbar
         
         $this->import_controller_values();
         $this->destroy_controller();
-        $this->print_layout();
+
+        if($this->api_mode === TRUE)
+        {
+            $this->print_api_response();
+        }
+        else
+        {
+            $this->print_layout();
+        }
 
 
     }
@@ -157,6 +169,16 @@ class crossbar
     public function set_modules_path($path)
     {
         $this->modules_path = $path;
+    }
+
+    public function enable_api_mode()
+    {
+        $this->api_mode = TRUE;
+    }
+
+    public function enable_debug_mode()
+    {
+        $this->debug_mode = TRUE;
     }
 
     // ---------------------------------------
@@ -310,6 +332,48 @@ class crossbar
         unset($this->controller_object);
     }
 
+    private function print_api_response()
+    {
+        $response = array();
+        if(!isset($this->success))
+        {
+            $this->error('API Mode: Missing required value $this->success');
+        }
+        elseif($this->success !== 1 && $this->success !== 0)
+        {
+            $this->error('API Mode: $this->success must be 1 or 0 (integers, not booleans)');
+        }
+        else
+        {
+            $response['success'] = $this->success;
+        }
+
+        if(isset($this->data))
+        {
+            $response['data'] = $this->data;
+        }
+
+        if(isset($this->error))
+        {
+            $response['error'] = $this->error;
+        }
+        elseif($response['success'] == 0)
+        {
+            $this->error('API Mode: Missing required value $this->error (when success=0)');
+        }
+
+        if($this->debug_mode)
+        {
+            $response['debug']['execution_time']    = number_format((microtime(true) - $this->start_time) , 4) . ' seconds';
+            $response['debug']['memory_usage']      = round(memory_get_usage()/1024,2)." kb"; 
+        }
+
+
+        header('Content-type: text/javascript');
+        print json_encode($response);
+
+    }
+
     /*
     * This includes the layout file unless the layout is disabled
     */
@@ -434,6 +498,7 @@ class crossbar
         trigger_error($error, E_USER_ERROR);
         exit;
     }
+
 
     
 }
