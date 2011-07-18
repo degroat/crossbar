@@ -79,5 +79,27 @@ class validate
         }
         return FALSE;
     }
+
+    public static function in_array($array, $keys)
+    {
+        $missing_keys = array();
+        foreach($keys as $key)
+        {
+            if(empty($array[$key]))
+            {
+                $missing_keys[] = $key;
+            }
+        }
+
+        if(count($missing_keys) > 0)
+        {
+            return array('success' => FALSE, 'missing_keys' => $missing_keys);
+        }
+        else
+        {
+            return array('success' => TRUE);
+        }
+    }
+
 }
 ?>
