@@ -366,6 +366,7 @@ class crossbar
         {
             $response['debug']['execution_time']    = number_format((microtime(true) - $this->start_time) , 4) . ' seconds';
             $response['debug']['memory_usage']      = round(memory_get_usage()/1024,2)." kb"; 
+            $response['debug']['queries']           = mysql::get_queries();
         }
 
 

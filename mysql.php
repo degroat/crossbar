@@ -6,6 +6,8 @@ class mysql
 	static private $connections = array();
 	static private $selected_database = array();
 	static private $errors = array();
+    static private $debug_mode = FALSE;
+    static private $queries = array();
 
 	public static function database_config($alias, $host, $database, $username, $password)
 	{
@@ -47,6 +49,11 @@ class mysql
 		// Select the right database
 		self::select_db($alias, self::$config[$alias]['database']);
 
+        if(self::$debug_mode === TRUE)
+        {   
+            self::$queries[] = $sql;
+        }       
+    
 		// Execute our query and get the result
 		$result = mysql_query($sql, $connection);
 
@@ -167,6 +174,16 @@ class mysql
 		}
 	}
 
+    public static function enable_debug_mode()
+    {
+        self::$debug_mode = TRUE;
+    }
+
+    public static function get_queries()
+    {
+        return self::$queries;
+    }       
+
 	// ==========================================================
 
 	private static function validate_alias($alias)
@@ -219,6 +236,8 @@ class mysql
 	{
 		self::$errors[] = $error;
 	}
+
+
 }
 
 ?>
