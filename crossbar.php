@@ -98,7 +98,7 @@ class crossbar
         }
 
         // Validate that this is an allowed action
-        if($this->action != preg_replace("/[^a-zA-Z0-9\s]/", "", $this->action) && $this->action != '_error' && $this->action != '_auth')
+        if($this->action != preg_replace("/[^a-zA-Z0-9_\s]/", "", $this->action) && $this->action != '_error' && $this->action != '_auth')
         {
             $this->error("Invalid Action '" . $this->action . "' in controller '" . $this->controller . "'");
         }
