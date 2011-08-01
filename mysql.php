@@ -90,9 +90,17 @@ class mysql
 
 	public static function query_row($alias, $sql)
 	{
-		if($result = self::query($alias, $sql))
+		$result = self::query($alias, $sql);
+        if($result !== FALSE)
 		{
-			return $result[0];
+            if(count($result) == 0)
+            {
+                return array();
+            }
+            else
+            {
+			    return $result[0];
+            }
 		}
 		return FALSE;
 	}
