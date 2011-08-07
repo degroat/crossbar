@@ -35,6 +35,15 @@ class validate
 		return TRUE;
 	}
 
+    public static function numeric($value)
+    {
+        if(!is_numeric($value))
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
 	public static function url($value)
 	{
 		if (filter_var($value, FILTER_VALIDATE_URL))
