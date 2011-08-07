@@ -20,6 +20,16 @@ class mysql
 
 	}
 
+    public static function insert($alias, $table, $values)
+    {
+        $sql = "INSERT INTO {$table} ( " . implode(', ', array_keys($values)) . " ) VALUES ( " . implode(', ', array_map(array('mysql','quote'),$values)) . " ) ";
+        if(mysql::query($alias, $sql) !== FALSE)
+        {
+            return self::last_insert_id($alias);
+        }
+        return FALSE;
+    }
+
 	public static function query($alias, $sql, $cache = FALSE, $update_cache = FALSE)
 	{
 		// Verify that the alias has been set up properly
