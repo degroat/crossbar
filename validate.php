@@ -35,6 +35,15 @@ class validate
 		return TRUE;
 	}
 
+    public static function numeric($value)
+    {
+        if(!is_numeric($value))
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
 	public static function url($value)
 	{
 		if (filter_var($value, FILTER_VALIDATE_URL))
@@ -78,6 +87,17 @@ class validate
             return TRUE;;
         }
         return FALSE;
+    }
+
+    public static function starts_with($value, $substring)
+    {
+        $check = strpos($value, $substring);
+
+        if($check === FALSE || $check > 0)
+        {
+            return FALSE;
+        }
+        return TRUE;
     }
 
     public static function in_array($array, $keys)
