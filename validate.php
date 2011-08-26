@@ -105,7 +105,9 @@ class validate
         $missing_keys = array();
         foreach($keys as $key)
         {
-            if(empty($array[$key]))
+            // 1st part, isset checks if it array_key_exists and if the value is NULL
+            // 2nd part, the value is ''
+            if(isset($array[$key]) === FALSE || trim($array[$key]) === '')
             {
                 $missing_keys[] = $key;
             }
