@@ -42,13 +42,13 @@ class crossbar
     {
         $this->auth_error = FALSE;
 
-        // If the controller doesn't exist, send them to index/_error
+        // If the controller doesn't exist, send them to index/_rewrite (if _rewrite does not exist, they'll be routed to _error below)
         $missing_controller = 0;
         if(!$this->set_controller_object())
         {    
             $this->missing_controller = $this->controller;
             $this->controller = "index";
-            $this->action = "_error";
+            $this->action = "_rewrite";
             $this->set_controller_object();
             $this->view = $this->controller . "/" . $this->action;
             $missing_controller = 1;
@@ -57,7 +57,7 @@ class crossbar
         // If the action we're not looking for doesn't exist and a re-write action does exist, use the rewrite one
         // OR... if we  have encountered a missing controller, let's see if the index/_rewrite exists
         //if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite') || $missing_controller)
-        if(!method_exists($this->controller_object, $this->action) && method_exists($this->controller_object, '_rewrite'))
+        if(($this->action == "_rewrite" || !method_exists($this->controller_object, $this->action)) && method_exists($this->controller_object, '_rewrite'))
         {
             $this->is_rewrite = TRUE;
             $this->build_rewrite_params();
@@ -92,9 +92,10 @@ class crossbar
         $this->build_params();
 
         // If a _pre function is defined, call it before the action
+        $pre_response = NULL;
         if(method_exists($this->controller_object, '_pre') && !$this->auth_error)
         {
-            $this->controller_object->_pre();
+            $pre_response = $this->controller_object->_pre();
         }
 
         // Validate that this is an allowed action
@@ -103,7 +104,11 @@ class crossbar
             $this->error("Invalid Action '" . $this->action . "' in controller '" . $this->controller . "'");
         }
         $action = $this->action;
-        $this->controller_object->$action();
+
+        if($pre_response !== FALSE) // if the _pre function returns a false, we don't execute the action
+        {
+            $this->controller_object->$action();
+        }
 
 
         // If a _post function is defined, call it before the action
