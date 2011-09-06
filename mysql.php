@@ -137,6 +137,18 @@ class mysql
 
 	}
 
+	public static function rows_affected($alias)
+	{
+		// Get our database connection.  This creates it necessary.  If no connection is made, it errors out
+		if(!($connection = self::get_connection($alias)))
+		{
+			return FALSE;
+		}
+
+		return mysql_affected_rows($connection);
+
+	}
+
 	public static function is_error()
 	{
 		if(count(self::$errors) > 0)
