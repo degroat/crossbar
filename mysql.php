@@ -38,6 +38,8 @@ class mysql
 			return FALSE;
 		}
 
+        // clearing out previous errors before every query
+        self::$errors = array();
 		
 		if($cache && !$update_cache)
 		{
