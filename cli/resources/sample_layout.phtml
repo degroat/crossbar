@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title><?=$this->title('###DOMAIN###') ?></title>
+
+        <!-- GLOBAL CSS FILES -->
+		<link href="/css/main.css" rel="stylesheet" type="text/css">	
+        <!-- GLOBAL JS FILES -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+		<script type="text/javascript" src="/js/main.js"></script>
+		<?
+		$this->include_css_files();
+		$this->include_js_files();
+		?>
+	</head>
+	<body>
+	</body>
+</html>
+    <body>
+            <?= $this->print_view(); ?>
+    </body>
+</html>
