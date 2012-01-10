@@ -12,7 +12,7 @@ require "###CROSSBAR_PATH###autoload.php";
 // caching functionality built into the mysql plugin, you must 
 // configure this connection
 // ------------------------------------------------------------------
-//mc::connect('mem.cache.announcemedia.com');
+//mc::connect('mem.cache.mydomain.com');
 
 // ------------------------------------------------------------------
 // The following config section sets up possible databse connections
