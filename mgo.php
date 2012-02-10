@@ -15,7 +15,7 @@ class mgo
 					);
     }
 
-	public static function query($alias, $dbname, $colname, $query, $limit)
+	public static function query($alias, $dbname, $colname, $query=array(), $limit=NULL, $sort=array())
 	{
 		// Verify that the alias has been set up properly
 		if(!self::validate_alias($alias))
@@ -37,7 +37,7 @@ class mgo
         $col = $db->$colname;
 
 
-        $result = $col->find($query)->limit($limit);
+        $result = $col->find($query)->sort($sort)->limit($limit);
         $list = array();
         while($result->hasNext())
         {
