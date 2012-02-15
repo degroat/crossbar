@@ -11,9 +11,9 @@
 class redis 
 {
     private static $repeat_reconnected = false;
-	static private $config = array();
-	static private $connections = array();
-	static private $errors = array();
+    static private $config = array();
+    static private $connections = array();
+    static private $errors = array();
 
     const Position_BEFORE = 'BEFORE';
     const Position_AFTER  = 'AFTER';
@@ -23,15 +23,15 @@ class redis
     const Aggregate_MAX   = 'MAX';
 
 
-	public static function config($alias, $host, $port = 6379)
-	{
-		self::$config[$alias] = array(
-	        'host'		=> $host,
-		    'port'	    => $port,
-	    );
+    public static function config($alias, $host, $port = 6379)
+    {
+        self::$config[$alias] = array(
+                'host'        => $host,
+                'port'        => $port,
+                );
     }
 
-		// Verify that the alias has been set up properly
+    // Verify that the alias has been set up properly
     public static function connect($alias)
     {
         if (empty(self::$connections[$alias]))
@@ -147,10 +147,10 @@ class redis
             case '-':
                 self::reportError('error: '.$reply);
                 return false;
-            /* Inline reply */
+                /* Inline reply */
             case '+':
                 return substr($reply, 1);
-            /* Bulk reply */
+                /* Bulk reply */
             case '$':
                 if ($reply=='$-1') return null;
                 $response = null;
@@ -174,7 +174,7 @@ class redis
                 }
                 fread($connection, 2); /* discard crlf */
                 break;
-            /* Multi-bulk reply */
+                /* Multi-bulk reply */
             case '*':
                 $count = substr($reply, 1);
                 if ($count=='-1') return null;
@@ -184,7 +184,7 @@ class redis
                     $response[] = self::_read_reply();
                 }
                 break;
-            /* Integer reply */
+                /* Integer reply */
             case ':':
                 return intval(substr($reply, 1));
                 break;
