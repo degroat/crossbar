@@ -1,12 +1,14 @@
 <?php
 
 /**
- * RedisServer allows you to work with Redis storage in PHP
- *
  * Redis version compatibility: 2.4 (also 2.2 and lower)
  *
  * You can send custom command using send_command() method.
  *
+ *
+ * This class based off of https://github.com/jamm/Memory/blob/master/RedisServer.php
+ *
+ * For the purposes of fitting in with other classes in crossbar, I converted it to static and added teh concept of multiple connections 
  */
 class redis 
 {
@@ -21,7 +23,6 @@ class redis
     const Aggregate_SUM   = 'SUM';
     const Aggregate_MIN   = 'MIN';
     const Aggregate_MAX   = 'MAX';
-
 
     public static function config($alias, $host, $port = 6379)
     {
