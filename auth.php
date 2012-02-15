@@ -227,7 +227,7 @@ class auth
 			return FALSE;
 		}
 
-		return implode("-", array_keys(self::$groups));
+		return substr(md5(implode("-", array_keys(self::$groups))),0,24);
 	}
 
 	public static function error($error = "")
