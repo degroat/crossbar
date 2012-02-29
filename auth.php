@@ -127,7 +127,7 @@ class auth
 
 	public static function logout()
 	{
-		setcookie(self::$cookie_name, $cookie_value, time() - 3600, '/');
+		setcookie(self::$cookie_name, '', time() - 3600, '/');
 	}
 
 	public static function group($group, $config)
