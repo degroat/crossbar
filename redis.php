@@ -502,9 +502,7 @@ class redis
 
     public static function lpush($alias, $key, $value)
     {
-        if (!is_array($value)) $value = func_get_args();
-        else array_unshift($value, $key);
-        return self::_send($alias,array('lpush', $value));
+        return self::_send($alias,array('lpush', $key, $value));
     }
 
     public static function lpushx($alias, $key, $value)
@@ -617,9 +615,11 @@ class redis
 
     public static function rpush($alias, $key, $value)
     {
-        if (!is_array($value)) $value = func_get_args();
-        else array_unshift($value, $key);
-        return self::_send($alias,array('rpush', $value));
+        #if (!is_array($value)) $value = func_get_args();
+        #else array_unshift($value, $key);
+        #print_r($value);
+        //$value = array($key, $value);
+        return self::_send($alias,array('rpush', $key, $value));
     }
 
     public static function rpushx($alias, $key, $value)
