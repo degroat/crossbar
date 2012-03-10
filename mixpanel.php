@@ -1,6 +1,7 @@
 <?
 class mixpanel {
     static private $token = NULL;
+    static private $default_ip = NULL;
     static private $host = 'http://api.mixpanel.com/';
     static public function set_token($token){
         self::$token = $token;
@@ -10,16 +11,19 @@ class mixpanel {
     }
     static public function track($event,$properties=array()) {
         if(self::$token == NULL){
-            throw Exception('mixpanel - can not call track without a token');
+            throw new Exception('mixpanel - can not call track without a token');
         }
         if(isset($_SERVER['REMOTE_ADDR']) == TRUE){
             $properties['ip'] = $_SERVER['REMOTE_ADDR'];
         }
-        if($properties['ip'] == '127.0.0.1'){
-            $properties['ip'] = self::$deafult_ip;
+        if(self::$default_ip !== NULL){
+            $properties['ip'] = self::$default_ip;
         }
         if(isset($properties['ip']) == FALSE){
-            throw Exception('mixpanel - no ip');
+            throw new Exception('mixpanel - no ip');
+        }
+        if($properties['ip'] == '127.0.0.1'){
+            $properties['ip'] = self::$default_ip;
         }
         $params = array(
                 'event' => $event,
