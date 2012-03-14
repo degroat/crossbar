@@ -16,7 +16,7 @@ class mixpanel {
         if(isset($_SERVER['REMOTE_ADDR']) == TRUE){
             $properties['ip'] = $_SERVER['REMOTE_ADDR'];
         }
-        if(self::$default_ip !== NULL){
+        if(isset($properties['ip']) === FALSE && self::$default_ip !== NULL){
             $properties['ip'] = self::$default_ip;
         }
         if(isset($properties['ip']) == FALSE){
