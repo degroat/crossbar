@@ -23,7 +23,16 @@ class mixpanel {
             throw new Exception('mixpanel - no ip');
         }
         if($properties['ip'] == '127.0.0.1'){
-            $properties['ip'] = self::$default_ip;
+            if(isset(self::$default_ip) === TRUE)
+            {
+                $properties['ip'] = self::$default_ip;
+            }
+            else
+            {
+                // mixpanel doesn't track 127.0.0.1
+                // so using google's IP address so we can still see that the tracking is working, even if it is all globbed together
+                $properties['ip'] = '64.233.191.255';
+            }
         }
         $params = array(
                 'event' => $event,
