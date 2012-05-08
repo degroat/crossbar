@@ -26,6 +26,15 @@ class validate
 
 	}
 
+	public static function alpha($value)
+	{
+		if(preg_match("/[^a-zA-Z ]/", $value))
+		{
+			return FALSE;
+		}
+		return TRUE;
+	}
+
 	public static function alphanumeric($value)
 	{
 		if(preg_match("/[^a-zA-Z0-9]/", $value))
@@ -44,6 +53,19 @@ class validate
         return TRUE;
     }
 
+    public static function int($value)
+    {
+        if(!is_numeric($value))
+        {
+            return FALSE;
+        }
+        if(floor($value) != $value)
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
 	public static function url($value)
 	{
 		if (filter_var($value, FILTER_VALIDATE_URL))
@@ -52,6 +74,15 @@ class validate
 		}
 		return FALSE;
 	}
+
+    public static function json($value)
+    {
+        if(is_array(json_decode($value, TRUE)))
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
 
     public static function length($value, $min_chars, $max_chars)
     {

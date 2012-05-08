@@ -9,6 +9,8 @@ class crossbar
     public function __construct($script_mode = FALSE)
     {
         $this->start_time               = microtime(true);
+        $this->apis                     = array();
+        $this->api_keys                 = array();
 
         if(!$script_mode)
         {
@@ -28,7 +30,6 @@ class crossbar
         $this->custom_include_paths     = array();
         $this->missing_controller       = '';
         $this->is_rewrite               = FALSE;
-        $this->api_mode                 = FALSE;
         $this->debug_mode               = FALSE;
 
         $this->set_include_path();
@@ -119,17 +120,138 @@ class crossbar
         
         $this->import_controller_values();
         $this->destroy_controller();
+        $this->print_layout();
+    }
 
-        if($this->api_mode === TRUE)
+    public function api()
+    {
+        $this->success = 0;
+        require_once 'base_api_controller.php'; 
+
+        if(globals::POSTGET('_debug') != NULL)
         {
-            $this->print_api_response();
+            mysql::enable_debug_mode();
         }
-        else
+
+        if(!$this->set_api_controller_object())
+        {    
+            $this->error("Error creating controller object");
+        }    
+
+        $this->build_params();
+
+        // Validate the API KEY
+        $key = globals::POSTGET('_key');
+        if($key == NULL)
         {
-            $this->print_layout();
+            $this->api_error("Missing required paramter _key");
+        }
+        if(!array_key_exists($key, $this->api_keys))
+        {
+            $this->api_error("Invalid API Key");
+            $key_details = $this->api_keys[$key];
+        }
+
+        // Verify this API was configured
+        if(!isset($this->apis[$this->controller][$this->action]))
+        {
+            $this->api_error("Invalid API URL");
         }
 
 
+        // If a _pre function is defined, call it before the action
+        $pre_response = NULL;
+        if(method_exists($this->controller_object, '_pre'))
+        {
+            $pre_response = $this->controller_object->_pre();
+        }
+
+        // Validate the params
+        $api = $this->apis[$this->controller][$this->action];
+        foreach($api['params'] as $param => $config)
+        {
+            $value = globals::POSTGET($param);
+            if($config['required'] === TRUE && empty($value))
+            {
+                $this->api_error("Missing required parameter {$param}");
+                continue;
+            }
+
+            if(!empty($value))
+            {
+                $type = $config['type'];
+                if($type != 'text')
+                {
+                    if(!validate::$type($value))
+                    {
+                        $this->api_error("Invalid value for parameter {$param} ({$type} expected)");
+                        continue;
+                    }
+                }
+
+                if(isset($config['max_length']))
+                {
+                    if(strlen($value) > $config['max_length'])   
+                    {
+                        $this->api_error("Invalid value for parameter {$param} (Exceeds maximum length of {$config['max_length']})");
+                        continue;
+                    }
+                }
+
+                if(isset($config['min_length']))
+                {
+                    if(strlen($value) < $config['min_length'])   
+                    {
+                        $this->api_error("Invalid value for parameter {$param} (Minimum length of {$config['min_length']})");
+                        continue;
+                    }
+                }
+            }
+        }
+
+
+        if($pre_response !== FALSE) // if the _pre function returns a false, we don't execute the action
+        {
+            $action = $this->action;
+            $this->controller_object->$action();
+        }
+
+
+        // If a _post function is defined, call it before the action
+        if(method_exists($this->controller_object, '_post'))
+        {
+            $this->controller_object->_post();
+        }
+        
+        $this->import_controller_values();
+        $this->destroy_controller();
+        $this->print_api_response();
+    }
+
+    public function register_standard_apis($models)
+    {
+        $methods = array('create', 'update_by_id', 'get_by_field', 'get_by_id', 'get_by_ids', 'delete_by_id');
+        foreach($models as $model)
+        {
+            foreach($methods as $method)
+            {
+                $this->register_api($model, $method, $model::fields($method));
+            }
+        }
+    }
+
+    public function register_api($controller, $action, $params)
+    {   
+        if(isset($this->apis[$controller][$action]))
+        {
+            $this->error("Duplicate API configuration for {$controller}/{$action}");
+        }
+        $this->apis[$controller][$action]['params'] = $params;
+    }   
+
+    public function register_api_keys($keys)
+    {
+        $this->api_keys = $keys;
     }
 
     public function add_to_include_path($path)
@@ -174,11 +296,6 @@ class crossbar
     public function set_modules_path($path)
     {
         $this->modules_path = $path;
-    }
-
-    public function enable_api_mode()
-    {
-        $this->api_mode = TRUE;
     }
 
     public function enable_debug_mode()
@@ -313,6 +430,27 @@ class crossbar
         return TRUE;
     }
 
+    private function set_api_controller_object()
+    {
+        $controller_filename = $this->controller . ".php";
+        $controller_class_name = $this->controller . "_controller";
+
+        if(file_exists($this->controllers_path . $controller_filename))
+        {
+            require_once $this->controllers_path . $controller_filename;
+            $this->controller_object = new $controller_class_name;
+        }
+        else
+        {
+            $this->controller_object = new base_api_controller();
+        }
+
+        $this->controller_object->controller = $this->controller;
+        $this->controller_object->action = $this->action;
+        return TRUE;
+    }
+
+
     /*
     * This function takes the values that were set in the controller and makes
     * them available in the framework. This makes the values accessible in the
@@ -339,6 +477,8 @@ class crossbar
 
     private function print_api_response()
     {
+        $format = globals::POSTGET('_format', 'json');
+
         $response = array();
         if(!isset($this->success))
         {
@@ -367,17 +507,18 @@ class crossbar
             $this->error('API Mode: Missing required value $this->error (when success=0)');
         }
 
-        if($this->debug_mode)
+        if(globals::POSTGET('_debug') != NULL)
         {
             $response['debug']['execution_time']    = number_format((microtime(true) - $this->start_time) , 4) . ' seconds';
-            $response['debug']['memory_usage']      = round(memory_get_usage()/1024,2)." kb"; 
+            $response['debug']['memory_usage']      = round(memory_get_usage()/1048576,3)." mb"; 
             $response['debug']['queries']           = mysql::get_queries();
+            $response['debug']['request']['url']    = $_SERVER['REQUEST_URI'];
+            $response['debug']['request']['_GET']   = globals::GET();
+            $response['debug']['request']['_POST']  = globals::POST();
         }
-
 
         header('Content-type: text/javascript');
         print json_encode($response);
-
     }
 
     /*
@@ -505,6 +646,12 @@ class crossbar
         exit;
     }
 
+    private function api_error($error)
+    {
+        $this->error = $error;
+        $this->print_api_response();
+        exit;
+    }
 
     
 }
