@@ -1,0 +1,7 @@
+*svn*
+*.swp
+*.swo
+*.pyc
+.DS_Store
+access_log
+error_log

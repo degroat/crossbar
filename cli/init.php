@@ -28,6 +28,8 @@ foreach($top as $dir)
         print "ERROR: Unable to create directory: {$site_path}{$dir}";
         exit;
     }
+    $filename = $site_path . $dir . "/.keepdir";
+    file_put_contents($filename, "This file is here so this directory is committed into a Git or Mercurial repo");
 }
 
 # SET UP BOOTSTRAP
@@ -75,6 +77,7 @@ $files = array(
     $crossbar_path . "cli/resources/sample_main.css" => $site_path . "htdocs/css/main.css",
     $crossbar_path . "cli/resources/sample_main.js" => $site_path . "htdocs/js/main.js",
     $crossbar_path . "cli/resources/sample_view.phtml" => $site_path . "views/index/index.phtml",
+    $crossbar_path . "cli/resources/.gitignore" => $site_path . ".gitignore",
 );
 foreach($files as $from => $to)
 {
