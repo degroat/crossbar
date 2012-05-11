@@ -20,9 +20,20 @@ class mysql
 
 	}
 
-    public static function insert($alias, $table, $values)
+    public static function insert($alias, $table, $values, $on_dupkey_update = array())
     {
         $sql = "INSERT INTO {$table} ( " . implode(', ', array_keys($values)) . " ) VALUES ( " . implode(', ', array_map(array('mysql','quote'),$values)) . " ) ";
+        if(!empty($on_dupkey_update) && is_array($on_dupkey_update))
+        {
+            $sql .= "ON DUPLICATE KEY UPDATE ";
+            $sql_parts = array();
+            foreach($on_dupkey_update as $key => $val)
+            {
+                $sql_parts[] = " {$key} = " . mysql::quote($val);
+            }
+            $sql .= implode(", ", $sql_parts);
+        }
+
         if(mysql::query($alias, $sql) !== FALSE)
         {
             return self::last_insert_id($alias);
@@ -41,7 +52,7 @@ class mysql
         // clearing out previous errors before every query
         self::$errors = array();
 		
-		if($cache && !$update_cache)
+		if($cache !== FALSE && !$update_cache)
 		{
 			$cache_key = "mysql_cache_" . $alias . "_" . md5($sql);
 
