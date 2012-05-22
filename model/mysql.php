@@ -64,5 +64,26 @@ class model_mysql extends model_base
         return $rows[0];
     }
 
+    // GET ALL
+    public static function get_all($values)
+    {
+        self::verify();
+        $sql = "SELECT * FROM ".static::$table;
+        if(isset($values['sort_field']))
+        {
+            $sql .= " ORDER BY " . $values['sort_field'];
+            if(isset($values['sort_order']))
+            {
+                $sql .= $values['sort_order'];
+            }
+        }
+        $rows = mysql::query(static::$database, $sql);
+        if($rows === FALSE)
+        {
+            self::set_error(mysql::get_errors());
+            return FALSE;
+        }
+        return $rows;
+    }
 }
 ?>

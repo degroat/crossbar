@@ -21,7 +21,7 @@ class model_base
             $fields[static::$id] = array('required' => TRUE, 'type' => 'int');
             return $fields;
         }
-        elseif($method == 'get_by_id')
+        elseif($method == 'get_by_id' || $method == 'delete_by_id')
         {
             return array(static::$id => array('required' => TRUE, 'type' => 'int'));
         }
@@ -34,6 +34,19 @@ class model_base
                                         ),
                             'value' => array(
                                             'required' => TRUE,
+                                            'type' => 'text',
+                                        ),
+                        );
+        }
+        elseif($method == 'get_all')
+        {
+            return array(
+                            'sort_field' => array(
+                                            'required' => FALSE,
+                                            'type' => 'text',
+                                        ),
+                            'sort_order' => array(
+                                            'required' => FALSE,
                                             'type' => 'text',
                                         ),
                         );

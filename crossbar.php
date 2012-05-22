@@ -217,6 +217,7 @@ class crossbar
         }
 
 
+
         // If a _post function is defined, call it before the action
         if(method_exists($this->controller_object, '_post'))
         {
@@ -230,7 +231,7 @@ class crossbar
 
     public function register_standard_apis($models)
     {
-        $methods = array('create', 'update_by_id', 'get_by_field', 'get_by_id', 'get_by_ids', 'delete_by_id');
+        $methods = array('create', 'update_by_id', 'get_by_field', 'get_by_id', 'get_by_ids', 'delete_by_id', 'get_all');
         foreach($models as $model)
         {
             foreach($methods as $method)
@@ -495,6 +496,14 @@ class crossbar
 
         if(isset($this->data))
         {
+            if(is_array($this->data))
+            {
+                array_walk_recursive($this->data, array($this, 'encode_array_items'));
+            }
+            else
+            {
+                $this->data = utf8_encode($this->data);
+            }
             $response['data'] = $this->data;
         }
 
@@ -519,6 +528,11 @@ class crossbar
 
         header('Content-type: text/javascript');
         print json_encode($response);
+    }
+
+    private function encode_array_items(&$item, $key)
+    {
+            $item = utf8_encode($item);
     }
 
     /*
