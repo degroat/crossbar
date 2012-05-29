@@ -57,9 +57,13 @@ class model_mysql extends model_base
     public static function get_by_id($values)
     {
         $rows = self::get_by_field(array('field' => static::$id, 'value' => $values[static::$id]));
-        if($rows == FALSE)
+        if($rows === FALSE)
         {
             return FALSE;
+        }
+        elseif(count($rows) == 0)
+        {
+            return array();
         }
         return $rows[0];
     }
