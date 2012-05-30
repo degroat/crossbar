@@ -29,6 +29,12 @@ class model_mysql extends model_base
             $string_vals[] = $var . " = " . mysql::quote($val);
         }
 
+        if(count($string_vals) == 0)
+        {
+            self::set_error('No valid fields to update');
+            return FALSE;
+        }
+
         $sql = "UPDATE ".static::$table." SET " . implode(', ', $string_vals) . " WHERE " . static::$id . " = " . mysql::quote($id);
         $response = mysql::query(static::$database, $sql);
         if($response === FALSE)
