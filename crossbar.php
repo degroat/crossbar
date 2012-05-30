@@ -374,6 +374,19 @@ class crossbar
                 }
             }
         }
+
+        if(count($_POST) > 0)
+        {
+            foreach($_POST as $var => $val)
+            {
+                $var_new = str_replace('amp;', '', $var);
+                if($var_new != $var)
+                {
+                    $_POST[$var_new] = $val;
+                    unset($_POST[$var]);
+                }
+            }
+        }
     }
 
     private function build_rewrite_params()
