@@ -45,6 +45,11 @@ class curl
         curl_setopt(self::$c, CURLOPT_POSTFIELDS, $params);
         return self::exec();
     }
+
+    public static function set_user_agent($user_agent)
+    {
+        self::$user_agent = $user_agent;
+    }
 }
 
 ?>
