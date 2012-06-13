@@ -53,6 +53,19 @@ class validate
         return TRUE;
     }
 
+    public static function zip($value)
+    {
+        if(!validate::int($value))
+        {
+            return FALSE;
+        }
+        if(strlen($value) != 5)
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
     public static function int($value)
     {
         if(!is_numeric($value))
