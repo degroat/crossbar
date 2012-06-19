@@ -31,6 +31,7 @@ class crossbar
         $this->missing_controller       = '';
         $this->is_rewrite               = FALSE;
         $this->debug_mode               = FALSE;
+        $this->errors = array();
 
         $this->set_include_path();
     }
@@ -168,13 +169,19 @@ class crossbar
 
         // Validate the params
         $api = $this->apis[$this->controller][$this->action];
+        $errors = array();
         foreach($api['params'] as $param => $config)
         {
+            $label = ucwords($param);
+            if(isset($config['label']))
+            {
+                $label = $config['label'];
+            }
+
             $value = globals::POSTGET($param);
             if($config['required'] === TRUE && empty($value))
             {
-                $this->api_error("Missing required parameter {$param}");
-                continue;
+                $errors[$param] = "Please enter a {$label}";
             }
 
             if(!empty($value))
@@ -184,8 +191,7 @@ class crossbar
                 {
                     if(!validate::$type($value))
                     {
-                        $this->api_error("Invalid value for parameter {$param} ({$type} expected)");
-                        continue;
+                        $errors[$param] = "Invalid value entered for {$label}";
                     }
                 }
 
@@ -193,8 +199,7 @@ class crossbar
                 {
                     if(strlen($value) > $config['max_length'])   
                     {
-                        $this->api_error("Invalid value for parameter {$param} (Exceeds maximum length of {$config['max_length']})");
-                        continue;
+                        $errors[$param] = "{$label} exceeds maximum length of {$config['max_length']}";
                     }
                 }
 
@@ -202,11 +207,15 @@ class crossbar
                 {
                     if(strlen($value) < $config['min_length'])   
                     {
-                        $this->api_error("Invalid value for parameter {$param} (Minimum length of {$config['min_length']})");
-                        continue;
+                        $errors[$param] = "{$label} has a minimum length of {$config['min_length']}";
                     }
                 }
             }
+        }
+
+        if(count($errors) > 0)
+        {
+            $this->api_error("Please fix the errors below", $errors);
         }
 
 
@@ -523,6 +532,10 @@ class crossbar
         if(isset($this->error))
         {
             $response['error'] = $this->error;
+            if(isset($this->param_errors))
+            {
+                $response['param_errors'] = $this->param_errors;
+            }
         }
         elseif($response['success'] == 0)
         {
@@ -673,9 +686,10 @@ class crossbar
         exit;
     }
 
-    private function api_error($error)
+    private function api_error($error, $param_errors)
     {
         $this->error = $error;
+        $this->param_errors = $param_errors;
         $this->print_api_response();
         exit;
     }

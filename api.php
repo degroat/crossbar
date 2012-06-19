@@ -6,6 +6,7 @@ class api
     private static $key = NULL;
     private static $secret = NULL;
     public static $error = NULL;
+    public static $response = NULL;
 
     public static function set_base_url($url)
     {
@@ -35,6 +36,7 @@ class api
     public static function process_response($response)
     {
         $response = json_decode($response, TRUE);
+        self::$response = $response;
         if($response == NULL)
         {
             self::$error = "Invalid JSON returned";   
