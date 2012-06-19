@@ -51,7 +51,7 @@ class mysql
 
         // clearing out previous errors before every query
         self::$errors = array();
-		
+	
 		if($cache !== FALSE && !$update_cache)
 		{
 			$cache_key = "mysql_cache_" . $alias . "_" . md5($sql);
@@ -101,7 +101,7 @@ class mysql
 					$array_result[] = $row;
 				}
 
-				if($cache)
+				if($cache !== FALSE)
 				{
 					mc::set($cache_key, $array_result, $cache);
 				}
@@ -111,9 +111,9 @@ class mysql
 		}
 	}
 
-	public static function query_row($alias, $sql)
+	public static function query_row($alias, $sql,  $cache = FALSE, $update_cache = FALSE)
 	{
-		$result = self::query($alias, $sql);
+		$result = self::query($alias, $sql, $cache, $update_cache);
         if($result !== FALSE)
 		{
             if(count($result) == 0)
@@ -128,9 +128,9 @@ class mysql
 		return FALSE;
 	}
 
-	public static function query_one($alias, $sql)
+	public static function query_one($alias, $sql, $cache = FALSE, $update_cache = FALSE)
 	{
-		if($result = self::query($alias, $sql))
+		if($result = self::query($alias, $sql, $cache, $update_cache))
 		{
 			return $result[0][key($result[0])];
 		}
