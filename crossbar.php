@@ -213,9 +213,13 @@ class crossbar
             }
         }
 
-        if(count($errors) > 0)
+        if(count($errors) > 1)
         {
-            $this->api_error("Please fix the errors below", $errors);
+            $this->api_error("Sorry! We've encountered some errors...", $errors);
+        }
+        elseif(count($errors) > 0)
+        {
+            $this->api_error("Sorry! We've encountered an error...", $errors);
         }
 
 

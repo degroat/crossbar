@@ -52,6 +52,24 @@ class api
             return $response['data'];
         }
     }
+
+    public static function get_param_errors()
+    {
+        if(isset(self::$response['param_errors']))
+        {
+            return self::$response['param_errors'];
+        }
+        return array();
+    }
+
+    public static function get_error()
+    {
+        if(isset(self::$response['error']))
+        {
+            return self::$response['error'];
+        }
+        return NULL;
+    }
 }
 
 ?>
