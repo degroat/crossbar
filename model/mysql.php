@@ -7,7 +7,22 @@ class model_mysql extends model_base
     {
         self::verify();
         $values = self::sanitize($values);
-        $response = mysql::insert(static::$database, static::$table, $values);
+
+        // Check for on duplicate key update fields
+        $update = array();
+        $fields = self::fields();
+        foreach($fields as $field => $details)
+        {
+            if(isset($details['on_duplicate_key_update']) && $details['on_duplicate_key_update'] == TRUE)
+            {
+                if(isset($values[$field]))
+                {
+                    $update[$field] = $values[$field];
+                }
+            }
+        }
+
+        $response = mysql::insert(static::$database, static::$table, $values, $update);
         if($response === FALSE)
         {
             self::set_error(mysql::get_errors());

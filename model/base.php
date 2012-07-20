@@ -63,6 +63,10 @@ class model_base
             {
                 unset($values[$var]);
             }
+            elseif($fields[$var]['type'] == "password")
+            {
+                $values[$var] = sha1($fields[$var]['salt'] . $values[$var]);
+            }
         }
         return $values;
     }

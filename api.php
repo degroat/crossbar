@@ -19,10 +19,14 @@ class api
         self::$secret = $secret;
     }
 
-    public static function get($controller, $action, $params)
+    public static function get($controller, $action, $params, $print_url = FALSE)
     {
         $params['_key'] = self::$key;
         $url = self::$base_url . "/{$controller}/{$action}?" . http_build_query($params);
+        if($print_url === TRUE)
+        {
+            print $url;
+        }
         return self::process_response(curl::get($url));
     }
 

@@ -179,7 +179,7 @@ class crossbar
             }
 
             $value = globals::POSTGET($param);
-            if($config['required'] === TRUE && empty($value))
+            if($config['required'] === TRUE && ($value == NULL || $value == ""))
             {
                 $errors[$param] = "Please enter a {$label}";
             }
@@ -187,7 +187,7 @@ class crossbar
             if(!empty($value))
             {
                 $type = $config['type'];
-                if($type != 'text')
+                if($type != 'text' && $type != 'password')
                 {
                     if(!validate::$type($value))
                     {
@@ -690,7 +690,7 @@ class crossbar
         exit;
     }
 
-    private function api_error($error, $param_errors)
+    private function api_error($error, $param_errors = array())
     {
         $this->error = $error;
         $this->param_errors = $param_errors;
