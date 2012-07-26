@@ -134,6 +134,12 @@ class crossbar
             mysql::enable_debug_mode();
         }
 
+        if($this->controller == 'index' && $this->action == 'index')
+        {
+            $this->api_forms();
+            return;
+        }
+
         if(!$this->set_api_controller_object())
         {    
             $this->error("Error creating controller object");
@@ -242,9 +248,14 @@ class crossbar
         $this->print_api_response();
     }
 
+    public function api_forms()
+    {
+        require "api_forms.php";
+    }
+
     public function register_standard_apis($models)
     {
-        $methods = array('create', 'update_by_id', 'get_by_field', 'get_by_id', 'get_by_ids', 'delete_by_id', 'get_all');
+        $methods = array('create', 'update_by_id', 'get_by_field', 'get_by_id', 'delete_by_id', 'get_all');
         foreach($models as $model)
         {
             foreach($methods as $method)
