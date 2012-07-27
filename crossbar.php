@@ -250,6 +250,7 @@ class crossbar
 
     public function api_forms()
     {
+        ksort($this->apis);
         require "api_forms.php";
     }
 

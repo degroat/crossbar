@@ -6,9 +6,25 @@
         <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
         <style>
           body {
-            padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+            padding-top: 55px; /* 60px to make the container go all the way to the bottom of the topbar */
+            padding-bottom:1000px;
           }
         </style>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script>
+            $(document).ready(function ()
+            {
+                $('BODY').css('padding-top', ($('.navbar-inner').height() + 15) + 'px');
+
+                $(".scroll").click(function ()
+                {
+                    $('html, body').animate(
+                    {
+                        scrollTop: $($(this).attr('scroll')).offset().top - $('.navbar-inner').height() - 15
+                    }, 300);
+                });
+            });
+            </script>
     </head>
     <body>
     <div class="navbar navbar-fixed-top">
@@ -19,14 +35,13 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </a>
-                <a class="brand" href="#">API Documentation</a>
                 <div class="nav-collapse">
                     <ul class="nav">
                         <?
                         foreach($this->apis as $table => $apis)
                         {
                             ?>
-                            <li><a href="#<?=$table ?>"><?=$table ?></a></li>
+                            <li><a class="scroll" scroll="#<?=$table ?>" href="javascript::void(0);"><?=$table ?></a></li>
                             <?
                         }
                         ?>
@@ -42,14 +57,13 @@ foreach($this->apis as $table => $apis)
 {
 
     ?>
-    <a name="<?=$table ?>"></a>
-    <div class="hero-unit">
+    <div class="hero-unit" id="<?=$table ?>">
         <h1><?=$table ?></h1> 
         <?
         foreach($apis as $action => $config)
         {
             ?>
-            <a href="#<?=$table ?>_<?=$action ?>" class="btn btn-primary"><?=$action ?></a>
+            <a href="javascript::void(0);" scroll="#<?=$table ?>_<?=$action ?>" class="scroll btn btn-primary"><?=$action ?></a>
             <?
         }
         ?>
@@ -67,9 +81,8 @@ foreach($this->apis as $table => $apis)
         }
         $example_url = 'http' . ((isset($_SERVER['HTTPS'])) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . "/{$table}/{$action}?" . http_build_query($example_params);
         ?>
-        <a name="<?=$table ?>_<?=$action ?>"></a>
         <a href="<?=$example_url ?>" class="btn btn-primary" target="_blank" style="float:right">Sample URL</a>
-        <h2>/<?=$table ?>/<?=$action ?></h2>
+        <h2 id="<?=$table ?>_<?=$action ?>">/<?=$table ?>/<?=$action ?></h2>
         <table class="table table-striped table-bordered">
             <tr>
                 <th>Parameter</th>
