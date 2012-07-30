@@ -27,7 +27,7 @@ class base_api_controller
         if($this->data === FALSE)
         {
             $this->error = $model::get_errors();
-            if(is_aray($this->error))
+            if(is_array($this->error))
             {
                 $this->error = array_shift($this->error);
             }
