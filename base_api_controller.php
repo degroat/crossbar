@@ -27,6 +27,10 @@ class base_api_controller
         if($this->data === FALSE)
         {
             $this->error = $model::get_errors();
+            if(is_aray($this->error))
+            {
+                $this->error = array_shift($this->error);
+            }
         }
         else
         {
