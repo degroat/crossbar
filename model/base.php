@@ -117,6 +117,13 @@ class model_base
     // --
     public static function get_errors()
     {
+        foreach(self::$errors as $index => $error)
+        {
+            if(strpos($error, 'Duplicate entry') !== FALSE && strpos($error, 'for key')  !== FALSE)
+            {
+                self::$errors[$index] = "Record already exists for " . substr($error, strpos($error, "'") + 1, strpos($error, "'", strpos($error, "'") + 1)-strpos($error, "'")-1);   
+            }
+        }
         return self::$errors;
     }
 }
