@@ -107,7 +107,7 @@ class model_mysql extends model_base
             $sql .= " ORDER BY " . $values['sort_field'];
             if(isset($values['sort_order']))
             {
-                $sql .= $values['sort_order'];
+                $sql .= ' ' . $values['sort_order'];
             }
         }
         $rows = mysql::query(static::$database, $sql);
