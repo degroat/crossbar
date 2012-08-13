@@ -65,6 +65,14 @@ class model_mysql extends model_base
     {
         self::verify();
         $sql = "SELECT * FROM ".static::$table." WHERE ".mysql::escape($values['field'])." = ".mysql::quote($values['value']);
+        if(isset($values['sort_field']))
+        {
+            $sql .= " ORDER BY " . $values['sort_field'];
+            if(isset($values['sort_order']))
+            {
+                $sql .= ' ' . $values['sort_order'];
+            }
+        }
         $rows = mysql::query(static::$database, $sql);
         if($rows === FALSE)
         {

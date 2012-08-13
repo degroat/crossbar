@@ -36,6 +36,14 @@ class model_base
                                             'required' => TRUE,
                                             'type' => 'text',
                                         ),
+                            'sort_field' => array(
+                                            'required' => FALSE,
+                                            'type' => 'text',
+                                        ),
+                            'sort_order' => array(
+                                            'required' => FALSE,
+                                            'type' => 'text',
+                                        ),
                         );
         }
         elseif($method == 'get_all')
