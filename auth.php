@@ -67,15 +67,6 @@ class auth
 			return FALSE;
 		}
 
-		// Verify that the group they're asking
-		// for even exists
-		if(!array_key_exists($group,self::$groups))
-		{
-			self::error('Invalid group specified');
-			return FALSE;
-		}
-
-
 		// Load the user groups
 		self::load_user_groups();
 
