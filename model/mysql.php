@@ -118,5 +118,13 @@ class model_mysql extends model_base
         }
         return $rows;
     }
+
+    // DELETE BY ID
+    public static function delete_by_id($values)
+    {
+        self::verify();
+        $sql = "DELETE FROM ".static::$table." WHERE ".static::$id." = ".mysql::quote($values[static::$id]);
+        return mysql::query(static::$database, $sql);
+    }
 }
 ?>
