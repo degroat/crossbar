@@ -195,7 +195,7 @@ class crossbar
                 $type = $config['type'];
                 if($type != 'text' && $type != 'password')
                 {
-                    if(!validate::$type($value))
+                    if(!validate::$type(trim($value)))
                     {
                         $errors[$param] = "Invalid value entered for {$label}";
                     }
