@@ -53,7 +53,7 @@ class api
         }
         else
         {
-            return $response['data'];
+            return ((isset($response['data'])) ? $response['data'] : TRUE);
         }
     }
 
