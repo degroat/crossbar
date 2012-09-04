@@ -134,6 +134,16 @@ class model_base
         }
         return self::$errors;
     }
+
+    public static function get_error()
+    {
+        $errors = static::get_errors();
+        if(empty($errors))
+        {
+            return FALSE;
+        }
+        return array_shift($errors);
+    }
 }
 
 ?>
