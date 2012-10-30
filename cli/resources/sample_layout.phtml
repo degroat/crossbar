@@ -4,11 +4,12 @@
 		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<title><?=$this->title('###DOMAIN###') ?></title>
-
         <!-- GLOBAL CSS FILES -->
 		<link href="/css/main.css" rel="stylesheet" type="text/css">	
+		<link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">	
         <!-- GLOBAL JS FILES -->
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+		<script type="text/javascript" src="/js/jquery.min.js"></script>
+		<script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="/js/main.js"></script>
 		<?
 		$this->include_css_files();
@@ -19,6 +20,8 @@
 	</body>
 </html>
     <body>
+        <div class="container">
             <?= $this->print_view(); ?>
+        </div>
     </body>
 </html>

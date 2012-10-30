@@ -3,6 +3,8 @@ class curl
 {
     private static $user_agent = NULL; 
     private static $c = NULL;
+    public static $return_transfer = true;
+    public static $no_body = false;
 
     private static function init()
     {
@@ -12,7 +14,8 @@ class curl
         }
 
         self::$c = curl_init();
-        curl_setopt(self::$c, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt(self::$c, CURLOPT_RETURNTRANSFER, self::$return_transfer);
+        curl_setopt(self::$c, CURLOPT_NOBODY, self::$no_body);
         curl_setopt(self::$c, CURLOPT_USERAGENT, self::$user_agent);
         curl_setopt(self::$c, CURLOPT_FOLLOWLOCATION, TRUE);
     }

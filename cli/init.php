@@ -88,5 +88,19 @@ foreach($files as $from => $to)
     }
 }
 
+# SET UP CONF 
+$jquery = file_get_contents("http://code.jquery.com/jquery.min.js");
+$filename = $site_path . "htdocs/js/jquery.min.js";
+if(file_put_contents($filename, $conf) === FALSE)
+{
+    print "ERROR: Unable to write to {$filename}";
+    exit;
+}
+
+$cmd = "cd {$site_path}htdocs; wget http://twitter.github.com/bootstrap/assets/bootstrap.zip; unzip bootstrap.zip; rm bootstrap.zip;";
+print "$cmd\n";
+$response = shell_exec($cmd);
+
+
 print "SUCCESS!\n\n";
 ?>
