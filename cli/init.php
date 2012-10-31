@@ -91,7 +91,7 @@ foreach($files as $from => $to)
 # SET UP CONF 
 $jquery = file_get_contents("http://code.jquery.com/jquery.min.js");
 $filename = $site_path . "htdocs/js/jquery.min.js";
-if(file_put_contents($filename, $conf) === FALSE)
+if(file_put_contents($filename, $jquery) === FALSE)
 {
     print "ERROR: Unable to write to {$filename}";
     exit;
