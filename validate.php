@@ -88,6 +88,16 @@ class validate
 		return FALSE;
 	}
 
+	public static function hexcolor($value)
+	{
+        if(preg_match('/^#[a-f0-9]{6}$/i', $value)) 
+        {
+            return TRUE;
+        }
+		return FALSE;
+	}
+
+
     public static function json($value)
     {
         if(is_array(json_decode($value, TRUE)))

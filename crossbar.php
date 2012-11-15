@@ -91,6 +91,7 @@ class crossbar
             $this->view = $this->controller . "/" . $this->action;
         }
 
+
         $this->build_params();
 
         // If a _pre function is defined, call it before the action
@@ -370,8 +371,8 @@ class crossbar
             return;
         }
 
-        $split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
-        $split_at_slash = explode("/", trim($split_at_question[0]));
+        $url_parts = parse_url('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+        $split_at_slash = explode("/", trim($url_parts['path']));
 
         for($i = 3; $i <= count($split_at_slash)-1; $i += 2)
         {
