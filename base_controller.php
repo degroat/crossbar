@@ -10,14 +10,23 @@ class base_controller
 		$this->layout_header 		= 'header';
 		$this->layout_footer 		= 'footer';
         $this->title_separator      = ' | ';
-        $this->title_parts          = array();
+        $this->title_parts_post     = array();
+        $this->title_parts_pre      = array();
 	}
 
     protected function title_append($val)
     {
         if($val != "")
         {
-            $this->title_parts[] = $val;
+            $this->title_parts_post[] = $val;
+        }
+    }
+
+    protected function title_prepend($val)
+    {
+        if($val != "")
+        {
+            array_unshift($this->title_parts_pre, $val);
         }
     }
 

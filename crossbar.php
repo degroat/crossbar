@@ -688,11 +688,20 @@ class crossbar
 
     private function title($default_title)
     {
+        $title_parts = array();
         if($default_title != "")
         {
-            array_unshift($this->title_parts, $default_title);
+            $title_parts[] = $default_title;
         }
-        return implode($this->title_separator, $this->title_parts);
+        if(count($this->title_parts_pre) > 0)
+        {
+            $title_parts = array_merge($this->title_parts_pre, $title_parts);
+        }
+        if(count($this->title_parts_post) > 0)
+        {
+            $title_parts = array_merge($title_parts, $this->title_parts_post);
+        }
+        return implode($this->title_separator, $title_parts);
     }
 
     private function error($error)
