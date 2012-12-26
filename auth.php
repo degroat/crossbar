@@ -221,6 +221,14 @@ class auth
 		return substr(md5(implode("-", array_keys(self::$groups))),0,24);
 	}
 
+    public static function set_cookie_name($name)
+    {
+        if(!empty($name))
+        {
+            self::$cookie_name = $name;
+        }
+    }
+
 	public static function error($error = "")
 	{
 		if($error == '')
