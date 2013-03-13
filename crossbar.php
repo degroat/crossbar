@@ -417,7 +417,7 @@ class crossbar
 
     private function build_rewrite_params()
     {
-        $split_at_question = explode("\?", trim($_SERVER['REQUEST_URI']));
+        $split_at_question = explode("?", trim($_SERVER['REQUEST_URI']));
         $_GET['_params'] = array_map('urldecode', explode("/", trim($split_at_question[0])));
         array_shift($_GET['_params']);
         array_shift($_GET['_params']);

@@ -32,6 +32,14 @@ class config
         return $value;
     }
 
+    public static function set($var, $val)
+    {
+        if(!empty($var) && !empty($val))
+        {
+            self::$values[$var] = $val;
+        }
+    }
+
 }
 
 ?>
