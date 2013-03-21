@@ -1,7 +1,7 @@
 <?
 class curl
 {
-    private static $user_agent = NULL; 
+    private static $user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22'; 
     private static $c = NULL;
     public static $return_transfer = true;
     public static $no_body = false;
