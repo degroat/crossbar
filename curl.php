@@ -5,6 +5,7 @@ class curl
     private static $c = NULL;
     public static $return_transfer = true;
     public static $no_body = false;
+    public static $headers = array();
 
     private static function init()
     {
@@ -18,6 +19,10 @@ class curl
         curl_setopt(self::$c, CURLOPT_NOBODY, self::$no_body);
         curl_setopt(self::$c, CURLOPT_USERAGENT, self::$user_agent);
         curl_setopt(self::$c, CURLOPT_FOLLOWLOCATION, TRUE);
+        if(!empty(self::$headers))
+        {
+            curl_setopt(self::$c, CURLOPT_HTTPHEADER, self::$headers);
+        }
     }
 
 
@@ -52,6 +57,17 @@ class curl
     public static function set_user_agent($user_agent)
     {
         self::$user_agent = $user_agent;
+    }
+
+    public static function set_headers($headers)
+    {
+        $formatted = array();
+        foreach($headers as $key => $val)
+        {
+            $formatted[] = "{$key}: {$val}";
+        }
+
+        self::$headers = $formatted;
     }
 }
 
