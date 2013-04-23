@@ -98,7 +98,7 @@ class model_mysql extends model_base
     }
 
     // GET ALL
-    public static function get_all($values)
+    public static function get_all($values = array())
     {
         self::verify();
         $sql = "SELECT * FROM ".static::$table;
