@@ -11,6 +11,11 @@ class misc
         $slug = preg_replace('/-$/', '', $slug);    // strip off trailing dash
         return $slug;
     }
+
+    public static function user_ip()
+    {
+        return $_SERVER['REMOTE_ADDR'];
+    }
 }
 
 ?>
