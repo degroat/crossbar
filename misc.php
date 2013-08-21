@@ -16,6 +16,16 @@ class misc
     {
         return $_SERVER['REMOTE_ADDR'];
     }
+
+    public static function reindex($array, $field)
+    {
+        $new_array = array();
+        foreach($array as $a)
+        {
+            $new_array[$a[$field]] = $a;
+        }
+        return $new_array;
+    }
 }
 
 ?>
