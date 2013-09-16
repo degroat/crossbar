@@ -150,6 +150,15 @@ class mssql
 			return FALSE;
 		}
 
+        $result = self::query($alias, "SELECT @@identity");
+        if (!$result)
+        {
+            FALSE;
+        }
+
+        print_r($result);exit;
+
+
 		return mssql_insert_id($connection);
 
 	}
