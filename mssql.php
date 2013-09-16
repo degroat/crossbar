@@ -150,17 +150,12 @@ class mssql
 			return FALSE;
 		}
 
-        $result = self::query($alias, "SELECT @@identity");
+        $result = self::query($alias, "SELECT SCOPE_IDENTITY()");
         if (!$result)
         {
-            FALSE;
+            return FALSE;
         }
-
-        print_r($result);exit;
-
-
-		return mssql_insert_id($connection);
-
+        return $result[0]['computed'];
 	}
 
 	public static function rows_affected($alias)
@@ -224,6 +219,10 @@ class mssql
 		{
 			return "NULL";
 		}
+        elseif(is_numeric($string))
+        {
+            return self::escape($string);
+        }
 		else
 		{
 			return "'" . self::escape($string) . "'";
