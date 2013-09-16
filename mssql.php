@@ -86,7 +86,7 @@ class mssql
 
 		if(!$result)
 		{
-			self::set_error(mssql_error());
+			self::set_error(mssql_get_last_message());
 			return FALSE;
 		}
 
@@ -273,7 +273,7 @@ class mssql
 		}
 		else
 		{
-			self::set_error(mssql_error());
+			self::set_error(mssql_get_last_message());
 			return FALSE;
 		}
 	}
