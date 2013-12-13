@@ -73,7 +73,14 @@ class model_mysql extends model_base
                 $sql .= ' ' . $values['sort_order'];
             }
         }
-        $rows = mysql::query(static::$database, $sql);
+        if(isset($values['single']) && $values['single'] == TRUE)
+        {
+            $rows = mysql::query_row(static::$database, $sql);
+        }
+        else
+        {
+            $rows = mysql::query(static::$database, $sql);
+        }
         if($rows === FALSE)
         {
             self::set_error(mysql::get_errors());

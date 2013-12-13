@@ -44,6 +44,10 @@ class model_base
                                             'required' => FALSE,
                                             'type' => 'text',
                                         ),
+                            'single' => array(
+                                            'required' => FALSE,
+                                            'type' => 'text',
+                                        ),
                         );
         }
         elseif($method == 'get_all')
