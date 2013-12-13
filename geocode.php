@@ -307,6 +307,18 @@ class geocode
         }
         return $countries;
     }
+
+    public static function get_country_from_code($code)
+    {
+        $countries = self::country_list();
+        if(isset($countries[$code]))
+        {
+            return $countries[$code];
+        }
+        return NULL;
+    }
+
+
 }
 
 ?>
