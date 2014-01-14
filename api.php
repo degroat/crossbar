@@ -19,7 +19,7 @@ class api
         self::$secret = $secret;
     }
 
-    public static function get($controller, $action, $params, $print_url = FALSE)
+    public static function get($controller, $action, $params = array(), $print_url = FALSE)
     {
         $params['_key'] = self::$key;
         $url = self::$base_url . "/{$controller}/{$action}?" . http_build_query($params);
@@ -30,7 +30,7 @@ class api
         return self::process_response(curl::get($url));
     }
 
-    public static function post($controller, $action, $params)
+    public static function post($controller, $action, $params = array())
     {
         $params['_key'] = self::$key;
         $url = self::$base_url . "/{$controller}/{$action}";
