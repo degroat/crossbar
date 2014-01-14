@@ -182,7 +182,7 @@ class redis
                 $response = array();
                 for ($i = 0; $i < $count; $i++)
                 {
-                    $response[] = self::_read_reply();
+                    $response[] = self::_read_reply($alias);
                 }
                 break;
                 /* Integer reply */
