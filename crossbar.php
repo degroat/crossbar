@@ -26,6 +26,7 @@ class crossbar
         $this->controllers_path         = $application_root . 'controllers/';
         $this->layouts_path             = $application_root . 'layouts/';
         $this->modules_path             = $application_root . 'modules/';
+        $this->url_segments             = NULL;
         $this->starting_include_path    = explode(PATH_SEPARATOR, get_include_path());
         $this->custom_include_paths     = array();
         $this->missing_controller       = '';
@@ -110,7 +111,7 @@ class crossbar
 
         if($pre_response !== FALSE) // if the _pre function returns a false, we don't execute the action
         {
-            $this->controller_object->$action();
+            call_user_func_array(array($this->controller_object, $action), $this->url_segments);
         }
 
 
@@ -373,6 +374,7 @@ class crossbar
 
         $url_parts = parse_url('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
         $split_at_slash = explode("/", trim($url_parts['path']));
+        $this->url_segments = array_slice($split_at_slash, 3);
 
         for($i = 3; $i <= count($split_at_slash)-1; $i += 2)
         {

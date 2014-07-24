@@ -6,6 +6,14 @@ class model_mysql extends model_base
     public static function create($values)
     {
         self::verify();
+        $validation_check = self::validate($values);
+
+        if($validation_check === FALSE)
+        {
+            self::set_error("Please correct the fields highlighted below");
+            return FALSE;
+        }
+
         $values = self::sanitize($values);
 
         // Check for on duplicate key update fields
@@ -51,6 +59,34 @@ class model_mysql extends model_base
         }
 
         $sql = "UPDATE ".static::$table." SET " . implode(', ', $string_vals) . " WHERE " . static::$id . " = " . mysql::quote($id);
+        $response = mysql::query(static::$database, $sql);
+        if($response === FALSE)
+        {
+            self::set_error(mysql::get_errors());
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    // UPDATE WHERE
+    public static function update_where($values, $update_condition)
+    {
+        self::verify();
+
+        $values = self::sanitize($values);
+        $string_vals = array();
+        foreach($values as $var => $val)
+        {
+            $string_vals[] = $var . " = " . mysql::quote($val);
+        }
+
+        if(count($string_vals) == 0)
+        {
+            self::set_error('No valid fields to update');
+            return FALSE;
+        }
+
+        $sql = "UPDATE ".static::$table." SET " . implode(', ', $string_vals) . " WHERE {$update_condition}";
         $response = mysql::query(static::$database, $sql);
         if($response === FALSE)
         {
@@ -133,5 +169,7 @@ class model_mysql extends model_base
         $sql = "DELETE FROM ".static::$table." WHERE ".static::$id." = ".mysql::quote($values[static::$id]);
         return mysql::query(static::$database, $sql);
     }
+
+
 }
 ?>

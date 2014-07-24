@@ -38,6 +38,8 @@ class mysql
         {
             return self::last_insert_id($alias);
         }
+
+        print $sql; exit;
         return FALSE;
     }
 
@@ -78,11 +80,11 @@ class mysql
         }       
     
 		// Execute our query and get the result
-		$result = mysql_query($sql, $connection);
+		$result = mysqli_query($connection, $sql);
 
 		if(!$result)
 		{
-			self::set_error(mysql_error());
+			self::set_error(mysqli_error($connection));
 			return FALSE;
 		}
 
@@ -96,7 +98,7 @@ class mysql
 			// Build result set array and return
 			default:
 				$array_result = array();
-				while($row = mysql_fetch_assoc($result))
+				while($row = mysqli_fetch_assoc($result))
 				{
 					$array_result[] = $row;
 				}
@@ -146,7 +148,7 @@ class mysql
 			return FALSE;
 		}
 
-		return mysql_insert_id($connection);
+		return mysqli_insert_id($connection);
 
 	}
 
@@ -158,7 +160,7 @@ class mysql
 			return FALSE;
 		}
 
-		return mysql_affected_rows($connection);
+		return mysqli_affected_rows($connection);
 
 	}
 
@@ -194,7 +196,7 @@ class mysql
 				return FALSE;
 			}
 		}
-		return mysql_real_escape_string($string);
+		return mysqli_real_escape_string(self::get_connection(key(self::$connections)), $string);
 	}
 
 	public static function quote($string)
@@ -254,13 +256,13 @@ class mysql
 
 	private static function create_connection($alias)
 	{
-		if(self::$connections[$alias] = mysql_connect(self::$config[$alias]['host'], self::$config[$alias]['username'], self::$config[$alias]['password']))
+		if(self::$connections[$alias] = mysqli_connect(self::$config[$alias]['host'], self::$config[$alias]['username'], self::$config[$alias]['password']))
 		{
 			return TRUE;
 		}
 		else
 		{
-			self::set_error(mysql_error());
+			self::set_error(mysqli_error());
 			return FALSE;
 		}
 	}
@@ -269,7 +271,7 @@ class mysql
 	{
 		if(!isset(self::$selected_database[$alias]) || self::$selected_database[$alias] != $database)
 		{
-			mysql_select_db($database, self::$connections[$alias]);
+			mysqli_select_db(self::$connections[$alias], $database);
 			$selected_database[$alias] = $database;
 		}
 		

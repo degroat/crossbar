@@ -76,7 +76,8 @@ class redis
      */
     public static function send_command($alias)
     {
-        return self::_send($alias, func_get_args());
+        //return self::_send($alias, func_get_args());
+        return self::_send($alias, array_slice(func_get_args(), 1));
     }
 
     protected static function _send($alias, $args)
@@ -224,9 +225,17 @@ class redis
 
     public static function sadd($alias, $set, $value)
     {
-        if (!is_array($value)) $value = func_get_args();
-        else array_unshift($value, $set);
-        return self::_send($alias, array('sadd', $value));
+        if(is_array($value))
+        {
+            array_unshift($value, $set);
+        }
+        else 
+        {
+            $value = array($set,  $value);
+        }
+
+        array_unshift($value, 'sadd');
+        return self::_send($alias, $value);
     }
 
     public static function smembers($alias, $set)
@@ -837,7 +846,9 @@ class redis
             $args[] = $limit[0];
             $args[] = $limit[1];
         }
-        return self::_send($alias,array('zRevRangeByScore', $args));
+        array_unshift($args, 'zRevRangeByScore');
+
+        return self::_send($alias,$args);
     }
 
     public static function zrevrank($alias,$key, $member)

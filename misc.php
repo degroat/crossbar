@@ -26,6 +26,18 @@ class misc
         }
         return $new_array;
     }
+
+    public static function get_between($string, $before, $after, $trim_whitespace = TRUE)
+    {
+        $starts_at = strpos($string, $before) + strlen($before);
+        $ends_at = strpos($string, $after, $starts_at);
+        $result = substr($string, $starts_at, $ends_at - $starts_at);
+        if($trim_whitespace)
+        {
+            return trim($result);
+        }
+        return $result;
+    }
 }
 
 ?>
