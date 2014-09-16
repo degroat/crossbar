@@ -20,8 +20,10 @@ class misc
     public static function reindex($array, $field)
     {
         $new_array = array();
+        $array = (array) $array;
         foreach($array as $a)
         {
+            $a = (array) $a;
             $new_array[$a[$field]] = $a;
         }
         return $new_array;
@@ -37,6 +39,16 @@ class misc
             return trim($result);
         }
         return $result;
+    }
+
+    public static function alphanumeric($string)
+    {
+        return preg_replace("/[^A-Za-z0-9 ]/", '', $string);
+    }
+
+    public static function numeric($string)
+    {
+        return preg_replace("/(^\s+)|(\s+$)/us", "", preg_replace("/[^0-9\.]/", '', $string));
     }
 }
 
