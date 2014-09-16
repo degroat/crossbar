@@ -8,6 +8,7 @@ class mysql
 	static private $errors = array();
     static private $debug_mode = FALSE;
     static private $queries = array();
+    static private $last_query = NULL;
 
 	public static function database_config($alias, $host, $database, $username, $password)
 	{
@@ -20,7 +21,7 @@ class mysql
 
 	}
 
-    public static function insert($alias, $table, $values, $on_dupkey_update = array())
+    public static function insert($alias, $table, $values, $on_dupkey_update = array(), $auto_inc_column = FALSE)
     {
         $sql = "INSERT INTO {$table} ( " . implode(', ', array_keys($values)) . " ) VALUES ( " . implode(', ', array_map(array('mysql','quote'),$values)) . " ) ";
         if(!empty($on_dupkey_update) && is_array($on_dupkey_update))
@@ -31,6 +32,10 @@ class mysql
             {
                 $sql_parts[] = " {$key} = " . mysql::quote($val);
             }
+            if($auto_inc_column)
+            {
+                $sql_parts[] = "{$auto_inc_column} = LAST_INSERT_ID( {$auto_inc_column})";
+            }
             $sql .= implode(", ", $sql_parts);
         }
 
@@ -39,7 +44,6 @@ class mysql
             return self::last_insert_id($alias);
         }
 
-        print $sql; exit;
         return FALSE;
     }
 
@@ -78,6 +82,7 @@ class mysql
         {   
             self::$queries[] = $sql;
         }       
+        self::$last_query = $sql;
     
 		// Execute our query and get the result
 		$result = mysqli_query($connection, $sql);
@@ -227,6 +232,11 @@ class mysql
     public static function get_queries()
     {
         return self::$queries;
+    }       
+
+    public static function get_last_query()
+    {
+        return self::$last_query;
     }       
 
 	// ==========================================================
