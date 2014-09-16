@@ -52,6 +52,16 @@ class auth
 
 	}
 
+    public static function logged_in()
+    {
+        $user = self::user();
+        if(empty($user))
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
 	public static function check($group)
 	{
 		// Everyone gets star!
