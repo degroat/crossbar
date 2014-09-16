@@ -26,7 +26,7 @@ class crossbar
         $this->controllers_path         = $application_root . 'controllers/';
         $this->layouts_path             = $application_root . 'layouts/';
         $this->modules_path             = $application_root . 'modules/';
-        $this->url_segments             = NULL;
+        $this->url_segments             = array();
         $this->starting_include_path    = explode(PATH_SEPARATOR, get_include_path());
         $this->custom_include_paths     = array();
         $this->missing_controller       = '';
