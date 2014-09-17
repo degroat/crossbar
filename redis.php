@@ -154,27 +154,15 @@ class redis
                 return substr($reply, 1);
                 /* Bulk reply */
             case '$':
-                if ($reply=='$-1') return null;
-                $response = null;
-                $read     = 0;
-                $size     = intval(substr($reply, 1));
-                if ($size > 0)
-                {
-                    do
-                    {
-                        $block_size = min($size-$read, 4096);
-                        if ($block_size < 1) break;
-                        $data = fread($connection, $block_size);
-                        if ($data===false)
-                        {
-                            self::reportError('error when reading answer');
-                            return false;
-                        }
-                        $response .= $data;
-                        $read += $block_size;
-                    } while ($read < $size);
-                }
-                fread($connection, 2); /* discard crlf */
+
+		if ($reply=='$-1') return null;
+		$response = null;
+		$size     = intval(substr($reply, 1));
+		if ($size > 0)
+		{
+			$response = stream_get_contents($connection, $size);
+		}
+		fread($connection, 2); /* discard crlf */
                 break;
                 /* Multi-bulk reply */
             case '*':
