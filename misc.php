@@ -17,14 +17,21 @@ class misc
         return $_SERVER['REMOTE_ADDR'];
     }
 
-    public static function reindex($array, $field)
+    public static function reindex($array, $field, $as_object = FALSE)
     {
         $new_array = array();
         $array = (array) $array;
         foreach($array as $a)
         {
-            $a = (array) $a;
-            $new_array[$a[$field]] = $a;
+            if(!$as_object)
+            {
+                $a = (array) $a;
+                $new_array[$a[$field]] = $a;
+            }
+            else
+            {
+                $new_array[$a->$field] = $a;
+            }
         }
         return $new_array;
     }
