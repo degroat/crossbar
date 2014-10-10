@@ -55,7 +55,7 @@ class misc
 
     public static function numeric($string)
     {
-        return preg_replace("/(^\s+)|(\s+$)/us", "", preg_replace("/[^0-9\.]/", '', $string));
+        return preg_replace("/(^\s+)|(\s+$)/us", "", preg_replace("/[^0-9\-\.]/", '', $string));
     }
 }
 
