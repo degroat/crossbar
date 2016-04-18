@@ -45,7 +45,7 @@ class crypto
         if(strlen($key) > 32) return false;
 
         // set sizes
-        $sizes = array(16,24,32);
+        $sizes = array(24,32);
 
         // loop through sizes and pad key
         foreach($sizes as $s){
