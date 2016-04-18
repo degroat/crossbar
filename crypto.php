@@ -10,13 +10,13 @@ class crypto
 	public static function encrypt($salt, $cleartext)
 	{
 		self::set_values();
-		return self::base64url_encode(mcrypt_encrypt(self::$encrypt_type,$salt,$cleartext,self::$encrypt_mode,self::$iv));
+		return self::base64url_encode(mcrypt_encrypt(self::$encrypt_type,self::pad($salt),$cleartext,self::$encrypt_mode,self::$iv));
 	}
 
 	public static function decrypt($salt, $ciphertext)
 	{
 		self::set_values();
-		return rtrim(mcrypt_decrypt(self::$encrypt_type,$salt,self::base64url_decode($ciphertext),self::$encrypt_mode,self::$iv),"\0");
+		return rtrim(mcrypt_decrypt(self::$encrypt_type,self::pad($salt),self::base64url_decode($ciphertext),self::$encrypt_mode,self::$iv),"\0");
 	}
 
 	private static function set_values()
@@ -38,6 +38,24 @@ class crypto
 		$plainText = base64_decode($base64);
 		return ($plainText);   
 	}
+
+    private static function pad($key)
+    {
+        // key is too large
+        if(strlen($key) > 32) return false;
+
+        // set sizes
+        $sizes = array(16,24,32);
+
+        // loop through sizes and pad key
+        foreach($sizes as $s){
+            while(strlen($key) < $s) $key = $key."\0";
+            if(strlen($key) == $s) break; // finish if the key matches a size
+        }
+
+        // return
+        return $key;
+    }
 }
 
 ?>

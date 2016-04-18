@@ -38,10 +38,15 @@ class curl
 		}
 	}
 
-    public static function get($url)
+    public static function get($url, $ref = NULL)
     {
         curl::init();
         curl_setopt(self::$c, CURLOPT_URL, $url);
+        if($ref != NULL)
+        {
+            curl_setopt(self::$c, CURLOPT_REFERER, $ref);
+        }
+
         return self::exec();
     }
 
